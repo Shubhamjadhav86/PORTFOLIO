@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  --background: hsl(240 10% 2%);
+  --foreground: hsl(0 0% 100%);
+  --card: hsl(240 10% 4%);
+  --card-foreground: hsl(0 0% 100%);
+  --popover: hsl(240 10% 2%);
+  --popover-foreground: hsl(0 0% 100%);
+  --primary: hsl(199 100% 50%);
+  --primary-foreground: hsl(240 10% 2%);
+  --secondary: hsl(240 5% 15%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 5% 15%);
+  --muted-foreground: hsl(240 5% 65%);
+  --accent: hsl(180 100% 50%);
+  --accent-foreground: hsl(240 10% 2%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(240 5% 20%);
+  --input: hsl(240 5% 20%);
+  --ring: hsl(199 100% 50%);
+  --radius: 0rem;
+}
+
+.dark {
+  --background: hsl(240 10% 2%);
+  --foreground: hsl(0 0% 100%);
+  /* same as root for consistent futuristic feel */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+  }
+  .glow-accent {
+    text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+  }
+  .border-glow {
+    box-shadow: 0 0 15px rgba(0, 112, 243, 0.3);
+  }
+  .glass {
+    @apply bg-background/50 backdrop-blur-xl border border-white/10;
+  }
+  .futuristic-grid {
+    background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  .noise {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.03;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  .scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 9998;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, var(--primary) 50%, rgba(0, 0, 0, 0) 100%);
+    opacity: 0.05;
+    position: fixed;
+    bottom: 100%;
+    left: 0;
+    pointer-events: none;
+    animation: scanline 8s linear infinite;
+  }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(200vh); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
