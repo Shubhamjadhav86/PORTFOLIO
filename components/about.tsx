@@ -1,70 +1,444 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { GraduationCap, MapPin, Briefcase, Globe, Star, GitBranch, Terminal, Layers, Code, Laptop } from "lucide-react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
-gsap.registerPlugin(ScrollTrigger)
+import { useMotionValue, useSpring, useTransform } from "framer-motion"
 
-export function About() {
-    const sectionRef = useRef(null)
-    const textRef = useRef(null)
+// --- 3D Tilt Wrapper ---
+function TiltCard({ children, shineColor = "#00f5d4" }: { children: React.ReactNode, shineColor?: string }) {
+    const x = useMotionValue(0)
+    const y = useMotionValue(0)
 
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            gsap.from(textRef.current, {
-                opacity: 0,
-                x: -100,
-                duration: 1.5,
-                ease: "power4.out",
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 80%",
-                    end: "top 20%",
-                    scrub: 1,
-                }
-            })
-        }, sectionRef)
-        return () => ctx.revert()
-    }, [])
+    const mouseXSpring = useSpring(x)
+    const mouseYSpring = useSpring(y)
+
+    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"])
+    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"])
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const width = rect.width
+        const height = rect.height
+        const mouseX = e.clientX - rect.left
+        const mouseY = e.clientY - rect.top
+        const xPct = mouseX / width - 0.5
+        const yPct = mouseY / height - 0.5
+        x.set(xPct)
+        y.set(yPct)
+    }
+
+    const handleMouseLeave = () => {
+        x.set(0)
+        y.set(0)
+    }
 
     return (
-        <section id="about" ref={sectionRef} className="container relative py-24 md:py-32 lg:py-48 mt-[-10vh]">
-            <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-primary/50 to-transparent" />
-            
-            <div ref={textRef} className="mx-auto flex max-w-[58rem] flex-col items-start gap-8 relative">
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-[1px] bg-primary" />
-                    <span className="text-primary text-[10px] font-bold tracking-[0.5em] uppercase">Biography.exe</span>
+        <motion.div
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+            className="relative h-full"
+        >
+            {children}
+            <motion.div 
+                style={{
+                    background: `radial-gradient(circle at center, ${shineColor}20 0%, transparent 70%)`,
+                    opacity: useTransform(mouseXSpring, [-0.5, 0.5], [0, 1]),
+                }}
+                className="absolute inset-0 pointer-events-none z-30"
+            />
+        </motion.div>
+    )
+}
+
+// --- Skeleton Loader ---
+function StatsSkeleton() {
+    return (
+        <div className="space-y-6 animate-pulse">
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/5 rounded-lg" />
+                <div className="h-6 w-24 bg-white/5 rounded" />
+            </div>
+            <div className="flex items-center gap-8">
+                <div className="w-24 h-24 rounded-full bg-white/5" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-10 bg-white/5 rounded-2xl" />
+                    <div className="h-4 w-1/2 bg-white/5 rounded" />
+                </div>
+            </div>
+            <div className="space-y-3">
+                {[1, 2, 3].map(i => <div key={i} className="h-2 bg-white/5 rounded-full" />)}
+            </div>
+        </div>
+    )
+}
+
+// --- Sub-component for LeetCode Stats ---
+function LeetCodeStats() {
+    const [data, setData] = useState<any>(null)
+    const [error, setError] = useState(false)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetch("/api/stats/leetcode")
+            .then(res => {
+                if (!res.ok) throw new Error()
+                return res.json()
+            })
+            .then(json => {
+                setData(json)
+                setLoading(false)
+            })
+            .catch(() => {
+                setError(true)
+                setLoading(false)
+            })
+    }, [])
+
+    if (loading) return <StatsSkeleton />
+    if (error) return (
+        <div className="h-full flex flex-col items-center justify-center text-center space-y-2 text-white/30">
+            <Laptop className="w-8 h-8 opacity-20" />
+            <p className="text-xs font-mono uppercase tracking-widest">Stats temporarily unavailable</p>
+        </div>
+    )
+
+    const stats = [
+        { label: "Easy", solved: data?.easySolved, total: data?.totalEasy, color: "#00f5d4", beats: "84%" },
+        { label: "Medium", solved: data?.mediumSolved, total: data?.totalMedium, color: "#10b981", beats: "92%" },
+        { label: "Hard", solved: data?.hardSolved, total: data?.totalHard, color: "#ff2d55", beats: "87%" },
+    ]
+
+    return (
+        <div className="space-y-6 h-full flex flex-col justify-between" style={{ transform: "translateZ(50px)" }}>
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/5 rounded-lg border border-white/5 shadow-inner">
+                            <Laptop className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-xl font-black tracking-tighter text-white">LeetCode</h3>
+                    </div>
+                    <div className="text-[10px] font-mono text-[#00f5d4] uppercase tracking-normal sm:tracking-widest bg-[#00f5d4]/10 px-3 py-1 rounded-full border border-[#00f5d4]/20 shadow-[0_0_15px_rgba(0,245,212,0.2)] self-start sm:self-auto">
+                        Top 5.2% Globally
+                    </div>
                 </div>
                 
-                <h2 className="font-extrabold text-5xl leading-[1.1] sm:text-6xl md:text-8xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-white/40">
-                    ABOUT <span className="text-primary">ME</span>
-                </h2>
+                <p className="text-[10px] text-white/40 font-bold italic tracking-wide border-l-2 border-[#00f5d4]/30 pl-3">
+                    &quot;Strong in Medium-level solving (92% beat rate)&quot;
+                </p>
+            </div>
 
-                <div className="grid gap-8 md:grid-cols-[1fr_200px]">
-                    <div className="space-y-6">
-                        <p className="leading-relaxed text-muted-foreground text-xl md:text-2xl font-light">
-                            I am a Full Stack Developer with a passion for building efficient,
-                            scalable web applications. My focus is not just on writing code, but on
-                            solving real-world problems through <span className="text-white font-medium">clean architecture</span> and user-centric
-                            design.
-                        </p>
-                        <p className="leading-relaxed text-muted-foreground text-xl md:text-2xl font-light">
-                            Currently, I am architecting solutions using the <span className="text-primary">MERN</span> stack and <span className="text-primary">Next.js</span>, 
-                            bridging the gap between frontend interactivity and robust backend logic.
-                        </p>
+            <div className="flex items-center gap-8">
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90">
+                        <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-white/5" />
+                        <motion.circle 
+                            cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" 
+                            strokeDasharray={251.2}
+                            initial={{ strokeDashoffset: 251.2 }}
+                            whileInView={{ strokeDashoffset: 251.2 - (251.2 * (data?.totalSolved / data?.totalQuestions)) }}
+                            transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+                            strokeLinecap="round"
+                            className="text-[#00f5d4] drop-shadow-[0_0_8px_rgba(0,245,212,0.4)]" 
+                        />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-black">{data?.totalSolved}</span>
+                        <span className="text-[9px] text-white/40 uppercase font-bold tracking-widest">Solved</span>
                     </div>
-                    
-                    <div className="hidden md:flex flex-col gap-4 border-l border-white/10 pl-8 pointer-events-none opacity-50">
-                        <div className="text-[10px] font-mono">STATUS: ACTIVE</div>
-                        <div className="text-[10px] font-mono">LOCATION: EARTH.JS</div>
-                        <div className="text-[10px] font-mono">CORE: FULL_STACK</div>
-                        <div className="w-full h-[1px] bg-white/10 mt-4" />
-                        <div className="text-[10px] font-mono animate-pulse text-primary">SCANNING_FOR_OPPORTUNITIES...</div>
+                </div>
+
+                <div className="flex-1 grid grid-cols-1 gap-2">
+                    <div className="bg-white/5 p-4 rounded-2xl flex items-center justify-between border border-white/5 group-hover:border-[#00f5d4]/30 transition-colors">
+                        <div className="text-[10px] text-white/40 uppercase font-black">Global Rank</div>
+                        <div className="text-sm font-black text-white">{data?.ranking?.toLocaleString()}</div>
                     </div>
                 </div>
             </div>
+
+            <div className="space-y-4">
+                {stats.map((s) => (
+                    <div key={s.label} className="space-y-1.5">
+                        <div className="flex justify-between text-[10px] font-bold tracking-tight">
+                            <span className="text-white/50 uppercase">{s.label}</span>
+                            <span className="text-white/90">{s.solved} <span className="text-white/30">/ {s.total}</span> <span className="text-[#10b981] ml-2">↑ {s.beats}</span></span>
+                        </div>
+                        <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                whileInView={{ width: `${(s.solved / s.total) * 100}%` }}
+                                transition={{ duration: 1.2, ease: "circOut" }}
+                                className="h-full rounded-full relative"
+                                style={{ backgroundColor: s.color }}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                            </motion.div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="pt-4 flex items-center justify-between border-t border-white/5">
+                <span className="text-[9px] text-white/20 font-mono tracking-tighter">Active: Recently active</span>
+                <Link href="#projects" className="text-[9px] font-black uppercase text-[#00f5d4] hover:underline tracking-widest transition-all">
+                    Applied in E-Cell Platform →
+                </Link>
+            </div>
+        </div>
+    )
+}
+
+// --- Sub-component for GitHub Stats ---
+function GitHubStats() {
+    const [data, setData] = useState<any>(null)
+    const [error, setError] = useState(false)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetch("/api/stats/github")
+            .then(res => {
+                if (!res.ok) throw new Error()
+                return res.json()
+            })
+            .then(json => {
+                setData(json)
+                setLoading(false)
+            })
+            .catch(() => {
+                setError(true)
+                setLoading(false)
+            })
+    }, [])
+
+    if (loading) return <StatsSkeleton />
+    if (error) return (
+        <div className="h-full flex flex-col items-center justify-center text-center space-y-2 text-white/30">
+            <Globe className="w-8 h-8 opacity-20" />
+            <p className="text-xs font-mono uppercase tracking-widest">Stats temporarily unavailable</p>
+        </div>
+    )
+
+    const metrics = [
+        { icon: Star, label: "Total Stars Earned:", value: data?.stars || "18" },
+        { icon: Terminal, label: "Total Commits:", value: data?.commits || "332" },
+        { icon: GitBranch, label: "Total PRs:", value: data?.prs || "22" },
+        { icon: Code, label: "Total Open Issues:", value: data?.open_issues_count || "45" },
+    ]
+
+    return (
+        <div className="space-y-6 h-full flex flex-col justify-between" style={{ transform: "translateZ(50px)" }}>
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/5 rounded-lg border border-white/5 shadow-inner">
+                            <Globe className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-xl font-black tracking-tighter text-white">GitHub</h3>
+                    </div>
+                    <div className="relative group/grade self-start sm:self-auto">
+                        <div className="absolute inset-0 bg-[#00f5d4]/20 blur-xl group-hover/grade:bg-[#00f5d4]/40 transition-colors rounded-full" />
+                        <div className="relative w-11 h-11 rounded-full border-2 border-[#00f5d4] flex items-center justify-center text-sm font-black shadow-[0_0_20px_rgba(0,245,212,0.3)] bg-black">
+                            A+
+                        </div>
+                    </div>
+                </div>
+                
+                <p className="text-[10px] text-white/40 font-bold italic tracking-wide border-l-2 border-[#ff2d55]/30 pl-3">
+                    &quot;Primary focus on backend-heavy languages (Python 56%)&quot;
+                </p>
+            </div>
+
+            <div className="space-y-4">
+                {metrics.map((m) => (
+                    <div key={m.label} className="flex items-center justify-between group/line">
+                        <div className="flex items-center gap-4">
+                            <div className="p-1.5 bg-white/5 rounded-md group-hover/line:bg-white/10 transition-colors">
+                                <m.icon className="w-3.5 h-3.5 text-white/40 group-hover/line:text-[#ff2d55] transition-colors" />
+                            </div>
+                            <span className="text-[11px] font-bold text-white/50 tracking-tight uppercase">{m.label}</span>
+                        </div>
+                        <span className="text-sm font-black text-white group-hover/line:text-[#ff2d55] transition-colors">{m.value}</span>
+                    </div>
+                ))}
+            </div>
+
+            <div className="space-y-4 pt-6 border-t border-white/5">
+                <div className="h-2.5 w-full flex rounded-full overflow-hidden border border-white/5 shadow-inner">
+                    {data?.languages?.map((lang: any, i: number) => (
+                        <motion.div 
+                            key={lang.name}
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${lang.percent}%` }}
+                            transition={{ duration: 1.5, delay: i * 0.2 }}
+                            style={{ backgroundColor: lang.color }}
+                            className="h-full first:rounded-l-full last:rounded-r-full relative group"
+                        >
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 text-[8px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+                                {lang.name}: {lang.percent}%
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                    {data?.languages?.map((lang: any) => (
+                        <div key={lang.name} className="flex items-center justify-between group/chip cursor-default">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_5px_rgba(255,255,255,0.2)]" style={{ backgroundColor: lang.color }} />
+                                <span className="text-[10px] font-bold text-white/40 group-hover/chip:text-white transition-colors">{lang.name}</span>
+                            </div>
+                            <span className="text-[9px] font-mono text-white/20 group-hover/chip:text-[#ff2d55]">{lang.percent}%</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="pt-4 flex items-center justify-between border-t border-white/5">
+                <span className="text-[9px] text-white/20 font-mono tracking-tighter">Last commit: {data?.lastActivity ? new Date(data.lastActivity).toLocaleDateString() : "Just now"}</span>
+                <Link href="#projects" className="text-[9px] font-black uppercase text-[#ff2d55] hover:underline tracking-widest transition-all">
+                    View Related Project →
+                </Link>
+            </div>
+        </div>
+    )
+}
+
+export function About() {
+    const [recruiterMode, setRecruiterMode] = useState(false)
+
+    return (
+        <section id="about" className="container px-6 md:px-8 py-48 border-b border-white/5 relative overflow-hidden">
+            {/* Background Texture/Accent */}
+            <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent -z-10" />
+            
+            <div className="flex flex-col md:flex-row items-start justify-between mb-16 gap-8">
+                <div>
+                    <h2 className="text-3xl lg:text-7xl font-black tracking-tighter text-white mb-2">ABOUT AREA</h2>
+                    <p className="text-white/30 font-mono text-[10px] uppercase tracking-[0.1em] md:tracking-[0.5em]">The technical identity of Shubham</p>
+                </div>
+                
+                <button 
+                    onClick={() => setRecruiterMode(!recruiterMode)}
+                    className={cn(
+                        "group flex items-center gap-3 px-6 py-3 rounded-full border transition-all duration-500",
+                        recruiterMode 
+                            ? "bg-[#00f5d4] border-[#00f5d4] text-black shadow-[0_0_30px_rgba(0,245,212,0.4)]" 
+                            : "bg-white/5 border-white/10 text-white/60 hover:border-[#00f5d4]/40 hover:text-white"
+                    )}
+                >
+                    <div className={cn(
+                        "w-2 h-2 rounded-full animate-pulse",
+                        recruiterMode ? "bg-black" : "bg-[#00f5d4]"
+                    )} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                        {recruiterMode ? "Close Shortcut" : "Recruiter Shortcut"}
+                    </span>
+                </button>
+            </div>
+
+            <AnimatePresence mode="wait">
+                {recruiterMode ? (
+                    <motion.div
+                        key="recruiter"
+                        initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                    >
+                        <div className="glass p-10 rounded-[2.5rem] border border-[#00f5d4]/30 shadow-[0_0_50px_rgba(0,245,212,0.1)]">
+                            <h4 className="text-xs font-black text-[#00f5d4] uppercase tracking-[0.3em] mb-6">Top Proficiency</h4>
+                            <div className="space-y-4">
+                                {["Next.js & React", "TypeScript", "Node.js (Express)", "PostgreSQL/Supabase", "UI Architecture"].map(skill => (
+                                    <div key={skill} className="flex items-center gap-4 group">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#00f5d4]/30 group-hover:bg-[#00f5d4] transition-colors" />
+                                        <span className="text-xl font-bold text-white/80 group-hover:text-white transition-colors tracking-tight">{skill}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="md:col-span-2 glass p-10 rounded-[2.5rem] border border-white/10 flex flex-col justify-between">
+                            <div className="flex justify-between items-start mb-8">
+                                <div>
+                                    <h4 className="text-xs font-black text-white/30 uppercase tracking-[0.3em] mb-4">Flagship Project</h4>
+                                    <h3 className="text-4xl lg:text-5xl font-black text-white tracking-tighter">E-CELL PLATFORM</h3>
+                                    <p className="text-white/50 text-lg mt-4 max-w-lg leading-relaxed italic">&quot;A high-performance ecosystem for startups, built with technical precision.&quot;</p>
+                                </div>
+                                <div className="w-16 h-16 bg-[#00f5d4]/10 rounded-3xl border border-[#00f5d4]/20 flex items-center justify-center">
+                                    <Globe className="w-8 h-8 text-[#00f5d4]" />
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center gap-4">
+                                <Link href="#projects" className="px-8 py-4 bg-white text-black rounded-full font-black uppercase text-xs tracking-widest hover:scale-105 active:scale-95 transition-all">
+                                    View Project Case Study
+                                </Link>
+                                <button className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
+                                    Download Resume (PDF)
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div 
+                        key="standard"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="grid grid-cols-1 md:grid-cols-4 gap-8 h-full"
+                    >
+                        <motion.div 
+                            whileHover={{ scale: 1.01 }}
+                            className="md:col-span-2 glass p-6 lg:p-12 rounded-[2.5rem] flex flex-col justify-between group h-full border border-white/5"
+                        >
+                            <div className="h-full flex flex-col">
+                                <div className="space-y-8 text-white/60 leading-relaxed text-xl md:text-2xl flex-1">
+                                    <p className="tracking-tight">
+                                        I’m a <span className="text-[#00f5d4] font-black uppercase tracking-tighter">Full Stack Developer</span> with an obsession for 
+                                        building high-performance, visually compelling web applications.
+                                    </p>
+                                    <p className="tracking-tight">
+                                        My approach combines <span className="text-white font-bold italic underline decoration-[#00f5d4]/30 underline-offset-8">technical precision</span> with 
+                                        creative problem-solving, ensuring every project delivers clean architecture 
+                                        and a seamless user experience.
+                                    </p>
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-4 mt-16">
+                                    <div className="inline-flex px-6 py-3 bg-[#00f5d4]/5 rounded-full text-[10px] font-black font-mono border border-[#00f5d4]/20 uppercase tracking-[0.2em] text-[#00f5d4] shadow-[0_0_20px_rgba(0,245,212,0.1)] w-fit">Available for Hire</div>
+                                    <div className="inline-flex px-6 py-3 bg-white/5 rounded-full text-[10px] font-black font-mono border border-white/10 uppercase tracking-[0.2em] text-white/40 w-fit">Remote / Mumbai</div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Developer Stats Section */}
+                        <div className="md:col-span-2 grid grid-cols-1 gap-8">
+                            <TiltCard>
+                                <motion.div 
+                                    whileHover={{ borderColor: "rgba(0, 245, 212, 0.4)" }}
+                                    className="glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group transition-colors duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] hover:shadow-[0_0_30px_rgba(0,245,212,0.1)] h-full"
+                                >
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00f5d4]/5 blur-[60px] rounded-full group-hover:bg-[#00f5d4]/10 transition-colors" />
+                                    <LeetCodeStats />
+                                </motion.div>
+                            </TiltCard>
+
+                            <TiltCard shineColor="#ff2d55">
+                                <motion.div 
+                                    whileHover={{ borderColor: "rgba(255, 45, 85, 0.4)" }}
+                                    className="glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group transition-colors duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] hover:shadow-[0_0_30px_rgba(255,45,85,0.1)] h-full"
+                                >
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff2d55]/5 blur-[60px] rounded-full group-hover:bg-[#ff2d55]/10 transition-colors" />
+                                    <GitHubStats />
+                                </motion.div>
+                            </TiltCard>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     )
 }

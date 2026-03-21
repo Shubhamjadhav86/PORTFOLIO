@@ -1,143 +1,93 @@
 "use client"
 
-import { useActionState, useEffect, useRef } from "react"
-import { useFormStatus } from "react-dom"
-import { sendContactEmail } from "@/app/actions"
+import { motion } from "framer-motion"
+import { Github, Linkedin, Mail, Twitter, Send, ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Github, Linkedin, Mail } from "lucide-react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-gsap.registerPlugin(ScrollTrigger)
-
-function SubmitButton() {
-    const { pending } = useFormStatus()
-    return (
-        <Button 
-            type="submit" 
-            className="w-full rounded-none bg-primary/20 border border-primary/50 text-primary hover:bg-primary hover:text-black transition-all group overflow-hidden relative" 
-            disabled={pending}
-        >
-            <span className="relative z-10">{pending ? "UPLOADING_DATA..." : "ESTABLISH_CONNECTION"}</span>
-            <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-        </Button>
-    )
-}
-
-const initialState = {
-    message: "",
-    errors: {},
-}
+const contactMethods = [
+    {
+        name: "Email",
+        value: "shubhamjadhav86@gmail.com",
+        icon: Mail,
+        href: "mailto:shubhamjadhav86@gmail.com",
+        color: "#00ffff"
+    },
+    {
+        name: "Github",
+        value: "Shubhamjadhav86",
+        icon: Github,
+        href: "https://github.com/Shubhamjadhav86",
+        color: "#ffffff"
+    },
+    {
+        name: "Linkedin",
+        value: "Connect with me",
+        icon: Linkedin,
+        href: "#",
+        color: "#0077B5"
+    },
+    {
+        name: "Twitter",
+        value: "Follow me",
+        icon: Twitter,
+        href: "#",
+        color: "#1DA1F2"
+    }
+]
 
 export function Contact() {
-    const [state, formAction] = useActionState(sendContactEmail, initialState)
-    const sectionRef = useRef(null)
-    const contentRef = useRef(null)
-
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            gsap.from(contentRef.current, {
-                opacity: 0,
-                y: 50,
-                duration: 1.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 80%",
-                }
-            })
-        }, sectionRef)
-        return () => ctx.revert()
-    }, [])
-
     return (
-        <section id="contact" ref={sectionRef} className="container py-24 md:py-32 relative">
-            <div ref={contentRef} className="grid gap-16 md:grid-cols-2 items-center">
-                <div className="flex flex-col justify-center space-y-8">
-                    <div className="space-y-4">
-                        <div className="text-primary text-[10px] font-bold tracking-[0.5em] uppercase">
-                            Communication_Channel.eth
-                        </div>
-                        <h2 className="text-4xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl bg-clip-text text-transparent bg-gradient-to-b from-white to-white/40">
-                            GET IN <span className="text-primary">TOUCH</span>
-                        </h2>
-                        <p className="max-w-[600px] text-muted-foreground text-xl font-light leading-relaxed">
-                            Currently available for new opportunities. My inbox is always open 
-                            for <span className="text-white">innovation</span> and 
-                            <span className="text-white"> collaboration</span>.
+        <section id="contact" className="container py-48 border-b border-white/5">
+            <div className="max-w-4xl mb-16">
+                <h2 className="text-4xl font-bold mb-4 tracking-tighter uppercase">GET IN TOUCH</h2>
+                <p className="text-muted-foreground text-lg italic">Let&apos;s build the future together.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Main Contact Card */}
+                <motion.div 
+                    whileHover={{ scale: 1.01 }}
+                    className="md:col-span-2 glass p-10 rounded-3xl flex flex-col justify-between group"
+                >
+                    <div>
+                        <h3 className="text-3xl font-bold mb-6 tracking-tight">Got a project? <br /> <span className="text-primary">Let&apos;s Talk!</span></h3>
+                        <p className="text-muted-foreground text-lg leading-relaxed max-w-md">
+                            I&apos;m currently available for freelance work and full-time positions. 
+                            If you have a project that needs a touch of digital magic, feel free to reach out.
                         </p>
                     </div>
-
-                    <div className="flex flex-col gap-6 mt-8">
-                        <a href="mailto:shubhamjadhav86@gmail.com" className="group flex items-center gap-4 text-muted-foreground hover:text-primary transition-all">
-                            <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary transition-colors">
-                                <Mail className="h-5 w-5" />
-                            </div>
-                            <span className="font-mono text-sm tracking-widest uppercase">shubhamjadhav86@gmail.com</span>
-                        </a>
-                        <a href="https://linkedin.com/in/shubhamjadhav86" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 text-muted-foreground hover:text-primary transition-all">
-                            <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary transition-colors">
-                                <Linkedin className="h-5 w-5" />
-                            </div>
-                            <span className="font-mono text-sm tracking-widest uppercase">LinkedIn Protocol</span>
-                        </a>
-                        <a href="https://github.com/Shubhamjadhav86" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 text-muted-foreground hover:text-primary transition-all">
-                            <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary transition-colors">
-                                <Github className="h-5 w-5" />
-                            </div>
-                            <span className="font-mono text-sm tracking-widest uppercase">GitHub Kernel</span>
-                        </a>
+                    <div className="mt-10">
+                        <Button size="lg" className="rounded-2xl h-14 px-8 text-base font-bold shadow-[0_0_20px_rgba(0,255,255,0.2)] hover:shadow-[0_0_30px_rgba(0,255,255,0.4)] transition-all duration-300">
+                           <Send className="w-5 h-5 mr-2" />
+                           Send Message
+                        </Button>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="relative">
-                    {/* HUD Frame Decorations */}
-                    <div className="absolute -top-4 -left-4 w-8 h-8 border-t border-l border-primary/40" />
-                    <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b border-r border-primary/40" />
-                    
-                    <Card className="bg-black/40 border-white/10 rounded-none glass backdrop-blur-md relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 text-[8px] font-mono text-white/10">
-                            MSG_FORM_V3.0
-                        </div>
-                        
-                        <CardHeader>
-                            <CardTitle className="text-sm font-bold tracking-[0.2em] uppercase text-white/60">
-                                Send a Message
-                            </CardTitle>
-                            <CardDescription className="text-xs font-light italic">
-                                Initialize encrypted communication...
-                            </CardDescription>
-                        </CardHeader>
-                        
-                        <CardContent>
-                            <form action={formAction} className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-[10px] font-bold tracking-widest uppercase text-white/40">NAME_INPUT</Label>
-                                    <Input id="name" name="name" className="rounded-none border-white/10 bg-white/5 focus-visible:ring-primary focus-visible:border-primary transition-all" placeholder="IDENTIFY YOURSELF" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email" className="text-[10px] font-bold tracking-widest uppercase text-white/40">EMAIL_ADDRESS</Label>
-                                    <Input id="email" name="email" type="email" className="rounded-none border-white/10 bg-white/5 focus-visible:ring-primary focus-visible:border-primary transition-all" placeholder="RETURN_ADDR" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="message" className="text-[10px] font-bold tracking-widest uppercase text-white/40">MESSAGE_DATA</Label>
-                                    <Textarea id="message" name="message" className="rounded-none border-white/10 bg-white/5 focus-visible:ring-primary focus-visible:border-primary transition-all min-h-[120px]" placeholder="YOUR_COMMANDS..." required />
-                                </div>
-                                <SubmitButton />
-                                
-                                {state?.message && (
-                                    <div className={`mt-4 p-3 border text-xs font-mono uppercase tracking-widest ${state.success ? "border-green-500/50 bg-green-500/10 text-green-500" : "border-red-500/50 bg-red-500/10 text-red-500"}`}>
-                                        {state.success ? "SYSTEM_MSG: SUCCESSFUL_TRANSMISSION" : `SYSTEM_ERR: ${state.message}`}
-                                    </div>
-                                )}
-                            </form>
-                        </CardContent>
-                    </Card>
+                {/* Social Links Bento */}
+                <div className="md:col-span-1 grid grid-cols-2 gap-4">
+                    {contactMethods.map((method, index) => (
+                        <motion.a
+                            key={index}
+                            href={method.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ y: -5, scale: 1.02 }}
+                            className="glass p-6 rounded-3xl flex flex-col items-center justify-center text-center group transition-all duration-300 hover:border-primary/30"
+                        >
+                            <div className="p-3 bg-white/5 rounded-2xl mb-3 group-hover:bg-white/10 transition-colors">
+                                <method.icon className="w-5 h-5" style={{ color: method.color }} />
+                            </div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{method.name}</p>
+                            <ArrowUpRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 absolute top-4 right-4" />
+                        </motion.a>
+                    ))}
                 </div>
+            </div>
+            
+            {/* Footer Sign-off */}
+            <div className="mt-32 text-center text-muted-foreground font-mono text-sm opacity-50 uppercase tracking-[0.3em]">
+                Designed & Built by Shubham Jadhav © 2026
             </div>
         </section>
     )

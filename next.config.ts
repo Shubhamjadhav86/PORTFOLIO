@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Disabling the Next.js watermark/indicator
+  devIndicators: false,
 };
 
 export default nextConfig;

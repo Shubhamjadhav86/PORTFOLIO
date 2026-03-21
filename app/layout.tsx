@@ -1,25 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google"; // Using defaults provided by Next.js
+import { Inter, Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
+import { Preloader } from "@/components/preloader"
+import { CustomCursor } from "@/components/custom-cursor"
+import { SmoothScroll } from "@/components/smooth-scroll"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const outfit = Outfit({ subsets: ["latin"] });
+const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-plus-jakarta" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Shubham Jadhav | Full Stack Developer",
-  description: "Portfolio of Shubham Jadhav, a Full Stack Developer building scalable web applications. Open to internships and full-time opportunities.",
+  description: "Portfolio of Shubham Jadhav",
 };
-
-import { SmoothScroll } from "@/components/smooth-scroll";
-import { PageTransition } from "@/components/page-transition";
 
 export default function RootLayout({
   children,
@@ -27,26 +21,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary overflow-x-hidden`}
-      >
-        <div className="noise" />
-        <div className="scanline" />
-        <div className="fixed inset-0 z-[-1] futuristic-grid opacity-20 pointer-events-none" />
-        <div className="fixed inset-0 z-[-1] bg-gradient-to-tr from-primary/5 via-transparent to-accent/5 pointer-events-none" />
-        
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${outfit.className} ${plusJakartaSans.variable} ${inter.variable} antialiased selection:bg-primary/30 min-h-screen bg-black overflow-x-hidden`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          forcedTheme="dark"
-          enableSystem={false}
+          enableSystem
           disableTransitionOnChange
         >
+          <Preloader />
+          <CustomCursor />
           <SmoothScroll>
-            <PageTransition>
+            <div className="relative overflow-x-clip min-h-screen">
               {children}
-            </PageTransition>
+            </div>
           </SmoothScroll>
         </ThemeProvider>
       </body>

@@ -1,99 +1,86 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
+import { motion } from "framer-motion"
+import { Briefcase, Calendar } from "lucide-react"
 
 const experience = [
     {
-        role: "FREELANCE_FULL_STACK_DEV",
-        company: "SELF_EMPLOYED",
-        duration: "2024 - PRESENT",
+        role: "Freelance Full Stack Developer",
+        company: "Self-Employed",
+        duration: "2024 - Present",
         description: [
             "Architected responsive interfaces using React and Tailwind CSS.",
             "Engineered secure backend kernels with Node/Express.",
-            "Optimized performance to 95+ Lifecycle scores.",
-        ],
-        code: "EXP_01"
+            "Optimized performance to 95+ Lighthouse scores.",
+        ]
     },
+    {
+        role: "Open Source Contributor",
+        company: "Github",
+        duration: "2023 - 2024",
+        description: [
+            "Contributed to various React and Tailwind based UI libraries.",
+            "Fixed critical bugs and improved documentation.",
+            "Collaborated with developers globally to enhance DX.",
+        ]
+    }
 ]
 
 export function Experience() {
-    const sectionRef = useRef(null)
-    const itemsRef = useRef<HTMLDivElement[]>([])
-
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            gsap.from(itemsRef.current, {
-                opacity: 0,
-                x: -50,
-                stagger: 0.3,
-                duration: 1,
-                ease: "power2.out",
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 80%",
-                }
-            })
-        }, sectionRef)
-        return () => ctx.revert()
-    }, [])
-
     return (
-        <section id="experience" ref={sectionRef} className="container py-24 md:py-32 relative">
-            <div className="flex flex-col items-center mb-16 space-y-4">
-                <div className="text-primary text-[10px] font-bold tracking-[0.5em] uppercase">
-                    Execution_History.log
-                </div>
-                <h2 className="text-4xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-b from-white to-white/40">
-                    WORK <span className="text-primary">EXPERIENCE</span>
-                </h2>
+        <section id="experience" className="container py-48 border-b border-white/5">
+            <div className="max-w-4xl mb-16">
+                <h2 className="text-4xl font-bold mb-4 tracking-tighter uppercase">Professional Journey</h2>
+                <p className="text-muted-foreground text-lg">A timeline of my growth and contributions.</p>
             </div>
-
-            <div className="mx-auto max-w-4xl space-y-12">
-                {experience.map((item, index) => (
-                    <div 
-                        key={index} 
-                        ref={(el) => { if (el) itemsRef.current[index] = el }}
-                        className="relative pl-12 group"
-                    >
-                        {/* Vertical Line */}
-                        <div className="absolute left-0 top-0 w-[1px] h-full bg-white/10 group-hover:bg-primary/50 transition-colors" />
-                        
-                        {/* Pulse Node */}
-                        <div className="absolute -left-[5px] top-2 h-2.5 w-2.5 bg-primary rounded-full glow-primary animate-pulse" />
-                        
-                        <div className="glass border-white/5 p-8 group-hover:border-primary/20 transition-all duration-500 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 text-[8px] font-mono text-white/10">
-                                {item.code}
+            
+            <div className="relative max-w-3xl mx-auto">
+                {/* Vertical Line */}
+                <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-primary/50 to-transparent" />
+                
+                <div className="space-y-12">
+                    {experience.map((item, index) => (
+                        <motion.div 
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className={`relative flex items-center justify-between md:justify-normal group ${
+                                index % 2 === 0 ? 'md:flex-row-reverse' : ''
+                            }`}
+                        >
+                            {/* Dot */}
+                            <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-black border-2 border-primary z-10 shadow-[0_0_10px_#00ffff]" />
+                            
+                            {/* Content Card */}
+                            <div className="w-full md:w-[45%] pl-8 md:pl-0">
+                                <motion.div 
+                                    whileHover={{ y: -5 }}
+                                    className="p-8 glass rounded-3xl border border-white/5 group-hover:border-primary/30 transition-all duration-300"
+                                >
+                                    <div className="flex items-center gap-2 text-primary font-mono text-xs mb-3 uppercase tracking-widest">
+                                        <Calendar className="w-4 h-4" />
+                                        {item.duration}
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-1 tracking-tight">{item.role}</h3>
+                                    <div className="flex items-center gap-2 text-muted-foreground font-medium mb-6 uppercase text-sm">
+                                        <Briefcase className="w-4 h-4" />
+                                        {item.company}
+                                    </div>
+                                    <ul className="space-y-3">
+                                        {item.description.map((desc, i) => (
+                                            <li key={i} className="flex gap-3 text-muted-foreground group-hover:text-white/80 transition-colors">
+                                                <span className="text-primary mt-1 text-xs">≫</span>
+                                                <span className="leading-relaxed">{desc}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </motion.div>
                             </div>
-                            
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                                <div>
-                                    <h3 className="text-2xl font-bold tracking-wider text-white group-hover:text-primary transition-colors">
-                                        {item.role}
-                                    </h3>
-                                    <p className="text-primary/60 font-mono text-xs tracking-widest mt-1">
-                                        {item.company} // {item.duration}
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <ul className="space-y-4">
-                                {item.description.map((desc, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-muted-foreground font-light text-lg">
-                                        <span className="text-primary mt-1.5 text-[10px]">▶</span>
-                                        {desc}
-                                    </li>
-                                ))}
-                            </ul>
-                            
-                            <div className="absolute bottom-0 right-0 w-16 h-1 bg-gradient-to-l from-primary/30 to-transparent" />
-                        </div>
-                    </div>
-                ))}
+                        </motion.div>
+                    ))}
+                </div>
             </div>
         </section>
     )

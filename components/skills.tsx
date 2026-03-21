@@ -1,106 +1,63 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-
-gsap.registerPlugin(ScrollTrigger)
+import { motion } from "framer-motion"
+import { 
+    Code2, 
+    Layers, 
+    Cpu, 
+    Globe, 
+    Database, 
+    Palette, 
+    Terminal, 
+    Smartphone,
+    Layout
+} from "lucide-react"
 
 const skills = [
-    {
-        category: "Frontend",
-        items: ["HTML", "CSS", "JavaScript", "React", "Next.js", "Tailwind CSS"],
-        code: "FE_MOD"
-    },
-    {
-        category: "Backend",
-        items: ["Node.js", "Express.js", "REST APIs", "Server Actions"],
-        code: "BE_MOD"
-    },
-    {
-        category: "Database",
-        items: ["MongoDB", "Mongoose", "PostgreSQL (Basic)", "Prisma"],
-        code: "DB_MOD"
-    },
-    {
-        category: "Tools & DevOps",
-        items: ["Git", "GitHub", "VS Code", "Postman", "Vercel", "Figma"],
-        code: "SYS_MOD"
-    },
+    { name: "React", category: "Frontend", color: "#61DAFB", icon: Code2 },
+    { name: "Next.js", category: "Frontend", color: "#ffffff", icon: Globe },
+    { name: "TypeScript", category: "Language", color: "#3178C6", icon: Terminal },
+    { name: "Node.js", category: "Backend", color: "#339933", icon: Database },
+    { name: "Tailwind", category: "Styling", color: "#06B6D4", icon: Palette },
+    { name: "Three.js", category: "3D", color: "#ffffff", icon: Layers },
+    { name: "Python", category: "Backend", color: "#3776AB", icon: Cpu },
+    { name: "MongoDB", category: "Database", color: "#47A248", icon: Database },
+    { name: "Framer", category: "Animation", color: "#0055FF", icon: Layout },
 ]
 
 export function Skills() {
-    const sectionRef = useRef(null)
-    const cardsRef = useRef<HTMLDivElement[]>([])
-
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            gsap.from(cardsRef.current, {
-                opacity: 0,
-                y: 50,
-                rotateX: 45,
-                stagger: 0.1,
-                duration: 1,
-                ease: "back.out(1.7)",
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 80%",
-                }
-            })
-        }, sectionRef)
-        return () => ctx.revert()
-    }, [])
-
     return (
-        <section id="skills" ref={sectionRef} className="container py-24 md:py-32 relative">
-            <div className="flex flex-col items-center mb-16 space-y-4">
-                <div className="text-primary text-[10px] font-bold tracking-[0.5em] uppercase animate-pulse">
-                    System_Capabilities.pkg
-                </div>
-                <h2 className="text-4xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-b from-white to-white/40">
-                    TECHNICAL <span className="text-primary">SKILLS</span>
-                </h2>
+        <section id="skills" className="container py-48 border-b border-white/5">
+            <div className="max-w-4xl mb-16">
+                <h2 className="text-4xl font-bold mb-4 tracking-tighter">TECHNICAL STACK</h2>
+                <p className="text-muted-foreground text-lg">Tools and technologies I use to bring ideas to life.</p>
             </div>
             
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {skills.map((skill, index) => (
-                    <div 
-                        key={skill.category} 
-                        ref={(el) => { if (el) cardsRef.current[index] = el }}
-                        className="group relative"
+                    <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.05 }}
+                        whileHover={{ 
+                            y: -5,
+                            borderColor: skill.color,
+                            boxShadow: `0 0 20px ${skill.color}33`
+                        }}
+                        className="p-6 glass border border-white/5 rounded-2xl transition-all duration-300 group cursor-default"
                     >
-                        {/* Futuristic Card Border/Glow */}
-                        <div className="absolute -inset-[1px] bg-gradient-to-br from-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
-                        
-                        <Card className="relative h-full bg-black/40 border-white/10 rounded-none glass backdrop-blur-sm overflow-hidden group-hover:border-primary/50 transition-colors duration-500">
-                            <div className="absolute top-0 right-0 p-2 text-[8px] font-mono text-white/20 select-none">
-                                {skill.code}
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="p-3 rounded-xl bg-white/5 group-hover:bg-[#00f5d4]/10 transition-colors">
+                                <skill.icon className="w-6 h-6" style={{ color: skill.color }} />
                             </div>
-                            
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-bold tracking-[0.2em] uppercase text-white/80 group-hover:text-primary transition-colors">
-                                    {skill.category}
-                                </CardTitle>
-                            </CardHeader>
-                            
-                            <CardContent>
-                                <div className="flex flex-wrap gap-2">
-                                    {skill.items.map((item) => (
-                                        <div 
-                                            key={item} 
-                                            className="px-2 py-1 text-[10px] font-mono border border-white/5 bg-white/5 text-white/60 group-hover:border-primary/20 group-hover:text-primary/80 transition-all"
-                                        >
-                                            {item}
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                            
-                            {/* Scanning line animation on hover */}
-                            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                        </Card>
-                    </div>
+                            <div>
+                                <h4 className="font-bold text-white group-hover:text-[#00f5d4] transition-colors">{skill.name}</h4>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{skill.category}</p>
+                            </div>
+                        </div>
+                    </motion.div>
                 ))}
             </div>
         </section>
