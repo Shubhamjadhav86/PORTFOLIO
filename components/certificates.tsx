@@ -1,111 +1,70 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ExternalLink, Award, FileText, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const certificates = [
-  {
-    id: 1,
-    title: "AWS Certified Solutions Architect",
-    issuer: "Amazon Web Services",
-    date: "Dec 2024",
-    color: "from-orange-500/20 to-orange-950/40",
-    borderColor: "border-orange-500/20",
-    accentColor: "#f97316",
-    link: "#"
-  },
-  {
-    id: 2,
-    title: "React Advanced Certification",
-    issuer: "Meta Blueprint",
-    date: "Nov 2024",
-    color: "from-cyan-500/20 to-cyan-950/40",
-    borderColor: "border-cyan-500/20",
-    accentColor: "#06b6d4",
-    link: "#"
-  },
-  {
-    id: 3,
-    title: "Full Stack Web Developer",
-    issuer: "Google Cloud",
-    date: "Oct 2024",
-    color: "from-blue-500/20 to-blue-950/40",
-    borderColor: "border-blue-500/20",
-    accentColor: "#3b82f6",
-    link: "#"
-  },
-  {
-    id: 4,
-    title: "UI/UX Design Professional",
-    issuer: "Adobe",
-    date: "Sep 2024",
-    color: "from-rose-500/20 to-rose-950/40",
-    borderColor: "border-rose-500/20",
-    accentColor: "#f43f5e",
-    link: "#"
-  },
-  {
-    id: 5,
-    title: "Mobile App Development",
-    issuer: "Apple Academy",
-    date: "Aug 2024",
-    color: "from-zinc-500/20 to-zinc-950/40",
-    borderColor: "border-zinc-500/20",
-    accentColor: "#71717a",
-    link: "#"
-  },
-  {
-    id: 6,
-    title: "Data Science Mastery",
-    issuer: "Coursera / IBM",
-    date: "Jul 2024",
-    color: "from-indigo-500/20 to-indigo-950/40",
-    borderColor: "border-indigo-500/20",
-    accentColor: "#6366f1",
-    link: "#"
-  },
-  {
-    id: 7,
-    title: "Cyber Security Specialist",
-    issuer: "CompTIA Security+",
-    date: "Jun 2024",
-    color: "from-emerald-500/20 to-emerald-950/40",
-    borderColor: "border-emerald-500/20",
-    accentColor: "#10b981",
-    link: "#"
-  },
-  {
-    id: 8,
-    title: "Backend Engine Design",
-    issuer: "Udemy Professional",
-    date: "May 2024",
-    color: "from-violet-500/20 to-violet-950/40",
-    borderColor: "border-violet-500/20",
-    accentColor: "#8b5cf6",
-    link: "#"
-  }
-]
+const BASE_URL = 'http://localhost:5000'
+
+interface Certificate {
+    _id: string;
+    title: string;
+    issuer: string;
+    date: string;
+    image: string;
+}
 
 export function Certificates() {
+  const [certs, setCerts] = useState<Certificate[]>([])
+  const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Carousel settings: show 1 on mobile, 4 on desktop
+  useEffect(() => {
+    const loadCerts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/certificates')
+        if (!response.ok) throw new Error("Failed to fetch")
+        const data = await response.json()
+        setCerts(data)
+      } catch (err) {
+        console.warn("Backend not reachable.", err)
+        setCerts([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadCerts()
+  }, [])
+
+  // Auto-sliding loop for mobile (2s interval)
+  useEffect(() => {
+    if (typeof window === 'undefined' || certs.length <= 1) return;
+    
+    const conductSwap = () => {
+      if (window.innerWidth < 1024) {
+        next();
+      }
+    };
+
+    const interval = setInterval(conductSwap, 2000);
+    return () => clearInterval(interval);
+  }, [certs])
+
   const next = () => {
-    // We can scroll up to length - visibleCards
     const visibleCards = typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4
-    setCurrentIndex((prev) => (prev + 1) % (certificates.length - visibleCards + 1))
+    setCurrentIndex((prev) => (prev + 1) % (certs.length - visibleCards + 1))
   }
 
   const prev = () => {
     const visibleCards = typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4
-    setCurrentIndex((prev) => (prev - 1 + (certificates.length - visibleCards + 1)) % (certificates.length - visibleCards + 1))
+    setCurrentIndex((prev) => (prev - 1 + (certs.length - visibleCards + 1)) % (certs.length - visibleCards + 1))
   }
+
+  if (loading || certs.length === 0) return null
 
   return (
     <section id="certificates" className="container py-24 relative overflow-hidden">
-      {/* Background Ambient Glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -113,187 +72,130 @@ export function Certificates() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-center mb-24 px-4 relative z-10"
+        className="text-center mb-24 md:mb-40 px-4 relative z-10"
       >
         <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">Credentials & Achievements</h2>
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
-          Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-rose-500">Certificates</span>
+          Premium 
+          <span className="relative inline-block">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-rose-500">Certificates</span>
+            <div className="absolute -top-[12.5rem] -right-28 w-[22rem] h-[22rem] z-20 pointer-events-none drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+              <img 
+                src="/sit.png" 
+                alt="Character Sitting" 
+                className="w-full h-full object-contain overflow-visible"
+                style={{ transform: "translateY(13px) translateX(10px)" }} 
+              />
+            </div>
+          </span>
         </h1>
         <p className="text-white/40 max-w-2xl mx-auto text-sm md:text-base leading-relaxed italic">
-          A showcase of verified professional certifications. Hover to partially reveal the details.
+          A showcase of verified professional certifications.
         </p>
       </motion.div>
 
       <div className="relative max-w-7xl mx-auto px-4 z-10">
-        {/* Horizontal Slider (Shared logic) */}
-        <div className="relative overflow-visible">
+        <div className="relative overflow-hidden px-4">
           <motion.div 
-            animate={{ x: `-${currentIndex * (100 / (typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4))}%` }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            animate={{ x: `calc(-${currentIndex * 100}% - ${currentIndex * 24}px)` }}
+            transition={{ type: "spring", stiffness: 260, damping: 26 }}
             className="flex gap-6 lg:gap-8"
           >
-            {certificates.map((cert) => (
+            {certs.map((cert, index) => (
               <div 
-                key={cert.id} 
+                key={cert._id} 
                 className="w-full lg:w-[calc(25%-1.5rem)] flex-shrink-0"
               >
-                <CertificateCard cert={cert} />
+                <CertificateCard cert={cert} index={index} />
               </div>
             ))}
           </motion.div>
         </div>
 
-        {/* Global Controls */}
         <div className="flex flex-col items-center mt-12 gap-8">
           <div className="flex items-center gap-8">
-            <button 
-              onClick={prev}
-              disabled={currentIndex === 0}
-              className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-all text-white/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed group"
-            >
-              <ChevronLeft className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" />
+            <button onClick={prev} disabled={currentIndex === 0} className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-cyan-500/20 text-white/50 hover:text-white disabled:opacity-20">
+              <ChevronLeft className="w-6 h-6" />
             </button>
-            
-            <div className="flex gap-3">
-              {Array.from({ length: certificates.length - (typeof window !== 'undefined' && window.innerWidth < 1024 ? 0 : 3) }).map((_, i) => (
-                <button 
-                  key={i}
-                  onClick={() => setCurrentIndex(i)}
-                  className={cn(
-                    "w-1.5 h-1.5 rounded-full transition-all duration-500",
-                    i === currentIndex ? "bg-cyan-400 w-10 shadow-[0_0_10px_#22d3ee]" : "bg-white/10"
-                  )}
-                />
-              ))}
-            </div>
-
-            <button 
-              onClick={next}
-              disabled={currentIndex >= certificates.length - (typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4)}
-              className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-rose-500/20 hover:border-rose-500/50 transition-all text-white/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed group"
-            >
-              <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
+            <button onClick={next} disabled={currentIndex >= certs.length - (typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4)} className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-rose-500/20 text-white/50 hover:text-white disabled:opacity-20">
+              <ChevronRight className="w-6 h-6" />
             </button>
           </div>
-          
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
       </div>
     </section>
   )
 }
 
-function CertificateCard({ cert }: { cert: typeof certificates[0] }) {
+function CertificateCard({ cert, index }: { cert: Certificate, index: number }) {
+  const themes = [
+    { bg: "bg-amber-600/20", border: "border-amber-500/30", text: "text-amber-400", shadow: "shadow-amber-500/20", gradient: "from-amber-600/40 to-amber-900/60" },
+    { bg: "bg-cyan-600/20", border: "border-cyan-500/30", text: "text-cyan-400", shadow: "shadow-cyan-500/20", gradient: "from-cyan-600/40 to-cyan-900/60" },
+    { bg: "bg-blue-600/20", border: "border-blue-500/30", text: "text-blue-400", shadow: "shadow-blue-500/20", gradient: "from-blue-600/40 to-blue-900/60" },
+    { bg: "bg-rose-600/20", border: "border-rose-500/30", text: "text-rose-400", shadow: "shadow-rose-500/20", gradient: "from-rose-600/40 to-rose-900/60" },
+  ]
+  const theme = themes[index % themes.length]
   return (
     <motion.div 
-      className="relative group w-full h-[400px] flex flex-col items-center justify-end"
+      className="relative group w-full h-[450px] flex flex-col items-center justify-end mt-16"
       whileHover="hover"
       initial="initial"
     >
-      {/* Certificate Paper - Partial Reveal Adjustments */}
       <motion.div 
         variants={{
-          hover: { y: -120, rotateX: 0, scale: 1, zIndex: 10 }, // Reduced reveal height
-          initial: { y: 60, rotateX: 10, scale: 0.9, zIndex: 0 }
+          hover: { y: -85, scale: 1.05, opacity: 1, rotate: 5 },
+          initial: { y: -18, scale: 0.98, opacity: 1, rotate: 0 }
         }}
-        transition={{ type: "spring", stiffness: 120, damping: 15 }}
-        className="absolute top-12 w-[88%] left-[6%] aspect-[3.2/4] bg-white rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 z-0 flex flex-col items-center border border-white/20"
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        className="absolute top-10 w-[85%] aspect-[1.1] bg-[#fdfaf1] rounded-lg shadow-2xl border border-black/10 flex flex-col items-center p-4 z-10 overflow-hidden"
       >
-        {/* Certificate Content */}
-        <div className="w-10 h-10 rounded-full border border-rose-900/10 flex items-center justify-center mb-3 opacity-60">
-          <div className="w-7 h-7 rounded-sm border border-rose-900/20 rotate-45 flex items-center justify-center">
-            <div className="w-4 h-4 bg-rose-900/10 -rotate-45" />
+        <div className="w-full h-full border-2 border-[#d4af37]/20 rounded-md p-2 flex flex-col items-center justify-center relative">
+          <div className="absolute top-2 left-2 right-2 border-t border-[#d4af37]/30" />
+          <div className="absolute bottom-2 left-2 right-2 border-b border-[#d4af37]/30" />
+          <div className="w-12 h-12 rounded-full border-2 border-[#d4af37]/40 flex items-center justify-center mb-2">
+             <div className="w-8 h-8 rounded-full bg-[#d4af37]/20 flex items-center justify-center">
+                <Award className="w-5 h-5 text-[#886d1a]" />
+             </div>
           </div>
-        </div>
-        
-        <div className="w-full flex items-center gap-2 mb-4">
-          <div className="h-px flex-1 bg-rose-950/10" />
-          <span className="text-[8px] font-mono uppercase tracking-widest text-rose-950/30 font-bold">Verified</span>
-          <div className="h-px flex-1 bg-rose-950/10" />
-        </div>
-        
-        <h3 className="text-[#0f172a] font-serif text-center text-[11px] font-black uppercase tracking-tight leading-none mb-2 px-2">
-          {cert.title}
-        </h3>
-
-        <div className="w-12 h-px bg-rose-950/10 mb-2" />
-        <p className="text-rose-950/50 font-serif italic text-[9px] text-center line-clamp-2">This certifies completion of professional requirements.</p>
-        
-        <div className="mt-auto w-full flex items-end justify-between px-2 pb-2">
-          <div className="text-left">
-            <p className="text-rose-950/60 font-bold font-mono text-[7px] uppercase">{cert.issuer}</p>
+          <h4 className="text-[10px] font-serif font-bold text-[#886d1a] tracking-[0.3em] uppercase mb-1">Certificate</h4>
+          <div className="w-16 h-[1px] bg-[#d4af37]/30 mb-2" />
+          <div className="flex flex-col gap-1 w-full px-2">
+            <div className="h-[2px] w-full bg-[#d4af37]/10" />
+            <div className="h-[2px] w-3/4 mx-auto bg-[#d4af37]/10" />
+            <div className="h-[2px] w-1/2 mx-auto bg-[#d4af37]/10" />
           </div>
-          <div className="w-6 h-6 rounded-full border border-rose-900/10 flex items-center justify-center opacity-30 grayscale">
-             <div className="w-3 h-3 bg-rose-900" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' }} />
-          </div>
+          <div className="absolute bottom-4 right-4 w-6 h-6 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/20" />
         </div>
       </motion.div>
 
-      {/* Envelope Pocket */}
-      <div 
-        className={cn(
-          "relative w-full h-[300px] rounded-[24px] p-6 flex flex-col items-center justify-end z-20 overflow-hidden border border-white/10 shadow-2xl transition-all duration-500",
-          "bg-[#0a0a0b]/80 backdrop-blur-3xl group-hover:bg-[#0a0a0b]/40",
-          "group-hover:border-white/20"
-        )}
-      >
-        {/* Glow */}
-        <div 
-          className={cn(
-            "absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500 bg-gradient-to-br",
-            cert.color
-          )} 
-        />
-        
-        {/* Top Curve Overlay */}
-        <div 
-          className="absolute top-0 left-0 w-full h-12 bg-white/5 backdrop-blur-md border-b border-white/10" 
-          style={{ clipPath: 'ellipse(70% 80% at 50% 0%)' }} 
-        />
-        
-        {/* Pocket Content */}
+      <div className={cn(
+        "relative w-full h-[320px] rounded-[2.5rem] p-8 flex flex-col items-center justify-end z-20 overflow-hidden border transition-all duration-500 shadow-2xl bg-black/40 backdrop-blur-3xl group-hover:bg-black/20",
+        theme.border,
+        `group-hover:${theme.shadow}`
+      )}>
+        <div className={cn("absolute inset-0 opacity-40 mix-blend-overlay bg-gradient-to-b", theme.gradient)} />
         <div className="relative z-30 w-full text-center">
-          <motion.div
-            variants={{ hover: { y: -5, opacity: 0 } }}
-            className="transition-all duration-500"
-          >
-            <h3 className="text-white font-black text-lg md:text-xl leading-[0.9] tracking-tighter mb-4">
-              {cert.title.split(' ').map((word, i) => (
-                <span key={i} className={i === 1 ? "text-white/40 block text-sm font-mono tracking-[0.1em] mt-1 mb-1" : "block"}>
-                  {word}
-                </span>
-              ))}
-            </h3>
-          </motion.div>
-
-          {/* Details */}
-          <motion.div 
-            variants={{ hover: { y: -40 } }}
-            transition={{ type: "spring", stiffness: 100 }}
-            className="flex flex-col items-center gap-2"
-          >
-            <div className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[8px] text-[#00f5d4] font-mono uppercase tracking-[0.2em]">
-              {cert.issuer}
+          <h3 className="text-white font-black text-xl leading-tight tracking-tight mb-4 uppercase">{cert.title}</h3>
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex items-center gap-2 opacity-60">
+                <CheckCircle2 className={cn("w-4 h-4", theme.text)} />
+                <span className="text-[10px] text-white/40 font-mono uppercase tracking-widest">{cert.issuer}</span>
             </div>
-            
-            <motion.a 
-              href={cert.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
-              className="mt-4 inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white text-black font-black text-[9px] hover:bg-[#00f5d4] transition-all group/btn"
+            <div className="text-[10px] text-white/20 font-mono font-bold tracking-widest">{cert.date}</div>
+            <a 
+                href={cert.image?.startsWith('http') ? cert.image : `${BASE_URL}${cert.image}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className={cn(
+                    "mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-black transition-all transform active:scale-95",
+                    `group-hover:border-${theme.text.split('-')[1]}-500/50`
+                )}
             >
-              VIEW CREDENTIAL <ExternalLink className="w-3 h-3" />
-            </motion.a>
-          </motion.div>
+              View Credential <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </div>
-
-      {/* Reflective Base Shadow */}
-      <div 
-        className="absolute -bottom-6 w-[85%] h-6 blur-2xl rounded-full transition-all duration-500 opacity-20 group-hover:opacity-60"
-        style={{ background: `radial-gradient(circle, ${cert.accentColor} 0%, transparent 70%)` }} 
-      />
     </motion.div>
   )
 }

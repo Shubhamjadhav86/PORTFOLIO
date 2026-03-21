@@ -118,7 +118,7 @@ export function Hero() {
                     className="absolute lg:relative inset-0 lg:inset-auto flex items-center justify-center lg:justify-end z-10 lg:z-auto pointer-events-none lg:pointer-events-auto -mt-32 lg:mt-0"
                 >
                     {/* Multi-layered Radial Glow */}
-                    <div className="absolute w-full h-full lg:w-[150%] lg:h-[150%] bg-[#00f5d4]/10 blur-[80px] lg:blur-[180px] rounded-full pointer-events-none animate-pulse" />
+                    <div className="absolute w-full h-full lg:w-[130%] lg:h-[130%] bg-[#00f5d4]/5 blur-[80px] lg:blur-[120px] rounded-full pointer-events-none animate-pulse" />
                     
                     <div className="relative w-full max-w-[450px] lg:max-w-[650px] aspect-square flex items-center justify-center opacity-20 lg:opacity-100">
                         <Image 

@@ -8,9 +8,19 @@ import * as random from "maath/random/dist/maath-random.esm";
 
 const StarBackground = (props: any) => {
   const ref: any = useRef(null);
-  const [sphere] = useState(() =>
-    random.inSphere(new Float32Array(5000), { radius: 1.2 })
-  );
+  const [sphere] = useState(() => {
+    try {
+      const p = random.inSphere(new Float32Array(5001), { radius: 1.2 });
+      // Sanity check for NaNs
+      for (let i = 0; i < p.length; i++) {
+        if (isNaN(p[i])) p[i] = 0;
+      }
+      return p;
+    } catch (e) {
+      console.error("Failed to generate stars:", e);
+      return new Float32Array(0);
+    }
+  });
 
   useFrame((state, delta) => {
     ref.current.rotation.x -= delta/10;
