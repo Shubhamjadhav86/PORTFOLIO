@@ -27,7 +27,7 @@ function Stars() {
             <Points ref={ref} positions={positions} stride={3} frustumCulled={false}>
                 <PointMaterial
                     transparent
-                    color="#00f5ff"
+                    color="#00f5d4"
                     size={0.05}
                     sizeAttenuation={true}
                     depthWrite={false}
@@ -74,8 +74,8 @@ function CentralGeometry() {
                 <icosahedronGeometry args={[2, 1]} />
                 <meshStandardMaterial
                     wireframe
-                    color="#00f5ff"
-                    emissive="#00f5ff"
+                    color="#00f5d4"
+                    emissive="#00f5d4"
                     emissiveIntensity={2}
                 />
             </mesh>
@@ -90,7 +90,7 @@ export default function Scene3D() {
                 <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
                 <ambientLight intensity={0.2} />
                 <pointLight position={[10, 10, 10]} intensity={1.5} color="#9b5de5" />
-                <pointLight position={[-10, -10, -10]} intensity={1} color="#00f5ff" />
+                <pointLight position={[-10, -10, -10]} intensity={1} color="#00f5d4" />
                 <Stars />
                 <CentralGeometry />
                 <Nebula />

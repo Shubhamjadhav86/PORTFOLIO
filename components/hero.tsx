@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Github, Linkedin, Mail } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useLenis } from "lenis/react"
 
 export function Hero() {
     const [text, setText] = useState("")
@@ -15,6 +16,17 @@ export function Hero() {
     const [typingSpeed, setTypingSpeed] = useState(150)
 
     const phrases = ["Software Developer", "Full Stack Engineer", "UI Architect"]
+
+    const lenis = useLenis()
+
+    const scrollToSection = (e: React.MouseEvent, href: string) => {
+        e.preventDefault()
+        lenis?.scrollTo(href, {
+            offset: 0,
+            duration: 2,
+            easing: (t) => 1 - Math.pow(1 - t, 4) // Quart Out
+        })
+    }
 
     useEffect(() => {
         const handleType = () => {
@@ -69,14 +81,18 @@ export function Hero() {
                     </p>
                     
                     <div className="flex flex-wrap items-center gap-4 lg:gap-6 pt-4">
-                        <button className="group relative px-6 lg:px-10 h-10 lg:h-14 bg-[#00f5d4] text-black rounded-full text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(0,245,212,0.5)] active:scale-95">
-                            <span className="relative z-10">View My Work</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        </button>
+                        <Link href="#projects" onClick={(e) => scrollToSection(e, "#projects")}>
+                            <button className="group relative px-6 lg:px-10 h-10 lg:h-14 bg-[#00f5d4] text-black rounded-full text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(0,245,212,0.5)] active:scale-95">
+                                <span className="relative z-10">View My Work</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                            </button>
+                        </Link>
                         
-                        <button className="px-6 lg:px-10 h-10 lg:h-14 bg-white text-black rounded-full text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95">
-                            My Resume
-                        </button>
+                        <Link href="#contact" onClick={(e) => scrollToSection(e, "#contact")}>
+                            <button className="px-6 lg:px-10 h-10 lg:h-14 bg-white text-black rounded-full text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95">
+                                Contact Me
+                            </button>
+                        </Link>
                     </div>
 
                     <div className="flex items-center gap-6 lg:gap-8 pt-4 lg:pt-6">

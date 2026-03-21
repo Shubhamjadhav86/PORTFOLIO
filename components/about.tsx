@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { GraduationCap, MapPin, Briefcase, Globe, Star, GitBranch, Terminal, Layers, Code, Laptop } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 import { useMotionValue, useSpring, useTransform } from "framer-motion"
@@ -315,11 +316,15 @@ export function About() {
             {/* Background Texture/Accent */}
             <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent -z-10" />
             
-            <div className="flex flex-col md:flex-row items-start justify-between mb-16 gap-8">
-                <div>
-                    <h2 className="text-3xl lg:text-7xl font-black tracking-tighter text-white mb-2">ABOUT AREA</h2>
-                    <p className="text-white/30 font-mono text-[10px] uppercase tracking-[0.1em] md:tracking-[0.5em]">The technical identity of Shubham</p>
-                </div>
+            <div className="text-center mb-24 relative z-10">
+                <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">IDENTITY & STATS</h2>
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
+                    About <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-rose-500">Area</span>
+                </h1>
+                <p className="text-white/40 max-w-2xl mx-auto text-sm md:text-base leading-relaxed italic">The technical identity and professional metrics of Shubham Jadhav.</p>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-center mb-16 gap-8">
                 
                 <button 
                     onClick={() => setRecruiterMode(!recruiterMode)}
@@ -393,9 +398,9 @@ export function About() {
                     >
                         <motion.div 
                             whileHover={{ scale: 1.01 }}
-                            className="md:col-span-2 glass p-6 lg:p-12 rounded-[2.5rem] flex flex-col justify-between group h-full border border-white/5"
+                            className="md:col-span-2 glass p-6 lg:p-12 rounded-[2.5rem] flex flex-col justify-between group h-full border border-white/5 relative overflow-hidden"
                         >
-                            <div className="h-full flex flex-col">
+                            <div className="h-full flex flex-col relative z-20">
                                 <div className="space-y-8 text-white/60 leading-relaxed text-xl md:text-2xl flex-1">
                                     <p className="tracking-tight">
                                         I’m a <span className="text-[#00f5d4] font-black uppercase tracking-tighter">Full Stack Developer</span> with an obsession for 
@@ -407,7 +412,26 @@ export function About() {
                                         and a seamless user experience.
                                     </p>
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-4 mt-16">
+
+                                {/* Avatar Image (Inside Card, PC Only) - Large Size, No Head Cropping */}
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1.2, ease: "easeOut" }}
+                                    className="hidden md:block relative w-full h-[450px] mt-10 group-hover:scale-[1.03] transition-transform duration-1000 origin-bottom"
+                                >
+                                    <Image 
+                                        src="/about.png" 
+                                        alt="About Avatar" 
+                                        fill
+                                        className="object-contain object-top filter drop-shadow-[0_0_40px_rgba(0,245,212,0.45)] brightness-110"
+                                        priority
+                                    />
+                                    {/* Subtle Ambient Glow behind avatar */}
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent -z-10 blur-2xl" />
+                                </motion.div>
+
+                                <div className="flex flex-col sm:flex-row gap-4 mt-12 relative z-20">
                                     <div className="inline-flex px-6 py-3 bg-[#00f5d4]/5 rounded-full text-[10px] font-black font-mono border border-[#00f5d4]/20 uppercase tracking-[0.2em] text-[#00f5d4] shadow-[0_0_20px_rgba(0,245,212,0.1)] w-fit">Available for Hire</div>
                                     <div className="inline-flex px-6 py-3 bg-white/5 rounded-full text-[10px] font-black font-mono border border-white/10 uppercase tracking-[0.2em] text-white/40 w-fit">Remote / Mumbai</div>
                                 </div>

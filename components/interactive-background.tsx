@@ -52,8 +52,8 @@ export function InteractiveBackground() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       
       const isDark = theme === "dark" || theme === "system"
-      const particleColor = isDark ? "rgba(59, 130, 246, 0.5)" : "rgba(37, 99, 235, 0.3)"
-      const lineColor = isDark ? "rgba(59, 130, 246, " : "rgba(37, 99, 235, "
+      const particleColor = isDark ? "rgba(0, 245, 212, 0.5)" : "rgba(0, 245, 212, 0.3)"
+      const lineColor = isDark ? "rgba(0, 245, 212, " : "rgba(0, 245, 212, "
 
       particles.forEach((p, i) => {
         // Move particle

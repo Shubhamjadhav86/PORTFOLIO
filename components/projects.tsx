@@ -34,9 +34,12 @@ const projects = [
 export function Projects() {
     return (
         <section id="projects" className="container py-48 border-b border-white/5">
-            <div className="max-w-4xl mb-16">
-                <h2 className="text-4xl font-bold mb-4 tracking-tighter uppercase">Featured Works</h2>
-                <p className="text-muted-foreground text-lg">A collection of systems and interfaces I've engineered.</p>
+            <div className="text-center mb-24 relative z-10">
+                <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">ENGINEERED SOLUTIONS</h2>
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
+                    Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-rose-500">Works</span>
+                </h1>
+                <p className="text-white/40 max-w-2xl mx-auto text-sm md:text-base leading-relaxed italic">A showcase of complex systems and refined user interfaces built by Shubham Jadhav.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

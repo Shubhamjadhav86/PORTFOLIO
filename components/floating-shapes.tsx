@@ -47,12 +47,12 @@ export function FloatingShapes() {
             <Canvas dpr={[1, 2]}>
                 <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
                 <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1.5} color="#00ffff" />
+                <pointLight position={[10, 10, 10]} intensity={1.5} color="#00f5d4" />
                 <pointLight position={[-10, -10, -10]} intensity={1} color="#9b5de5" />
                 
-                <Shape position={[-5, 2, -2]} color="#00ffff" type="sphere" />
+                <Shape position={[-5, 2, -2]} color="#00f5d4" type="sphere" />
                 <Shape position={[5, -2, -5]} color="#9b5de5" type="cube" />
-                <Shape position={[2, 4, -8]} color="#00ffff" type="torus" />
+                <Shape position={[2, 4, -8]} color="#00f5d4" type="torus" />
                 <Shape position={[-3, -4, -4]} color="#9b5de5" type="sphere" />
                 
                 {/* Background stars/particles could also be here, but we use the canvas background component */}

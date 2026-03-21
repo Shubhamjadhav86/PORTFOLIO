@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Github, Linkedin, Mail, Twitter, Send, ArrowUpRight } from "lucide-react"
+import { Github, Linkedin, Mail, MessageCircle, Send, ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const contactMethods = [
@@ -27,20 +27,23 @@ const contactMethods = [
         color: "#0077B5"
     },
     {
-        name: "Twitter",
-        value: "Follow me",
-        icon: Twitter,
-        href: "#",
-        color: "#1DA1F2"
+        name: "WhatsApp",
+        value: "Direct Chat",
+        icon: MessageCircle,
+        href: "https://wa.me/910000000000",
+        color: "#25D366"
     }
 ]
 
 export function Contact() {
     return (
         <section id="contact" className="container py-48 border-b border-white/5">
-            <div className="max-w-4xl mb-16">
-                <h2 className="text-4xl font-bold mb-4 tracking-tighter uppercase">GET IN TOUCH</h2>
-                <p className="text-muted-foreground text-lg italic">Let&apos;s build the future together.</p>
+            <div className="text-center mb-24 relative z-10">
+                <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">GET IN TOUCH</h2>
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
+                    Contact <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-rose-500">Me</span>
+                </h1>
+                <p className="text-white/40 max-w-2xl mx-auto text-sm md:text-base leading-relaxed italic">Let&apos;s build the future together. Reach out for collaborations or opportunities.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
