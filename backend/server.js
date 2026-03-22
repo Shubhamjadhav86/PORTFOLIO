@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+
+dotenv.config();
+
 const connectDB = require('./config/db');
 
 // Route imports
@@ -11,16 +14,18 @@ const projectRoutes = require('./routes/projectRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 
-
-dotenv.config();
-
 // Connect to Database
 connectDB();
 
 const app = express();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -28,7 +33,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/admin', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/certificates', certificateRoutes);
-app.use('/api/messages', messageRoutes);
+app.use('/api', messageRoutes);
 
 
 // Image Upload Configuration
