@@ -2,13 +2,21 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { GraduationCap, MapPin, Briefcase, Globe, Star, GitBranch, Terminal, Layers, Code, Laptop } from "lucide-react"
+import { GraduationCap, MapPin, Briefcase, Globe, Star, GitBranch, Terminal, Layers, Code, Laptop, Zap, BookOpen, Target } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 import { useMotionValue, useSpring, useTransform } from "framer-motion"
 import { TiltCard } from "@/components/ui/tilt-card"
+
+interface AboutSettings {
+  showGithub: boolean
+  showLeetcode: boolean
+  showCustom: boolean
+  customTitle: string
+  customDesc: string
+}
 
 // --- Skeleton Loader ---
 function StatsSkeleton() {
@@ -204,7 +212,7 @@ function GitHubStats() {
                 </div>
                 
                 <p className="text-[10px] text-white/40 font-bold italic tracking-wide border-l-2 border-[#ff2d55]/30 pl-3">
-                    &quot;Primary focus on backend-heavy languages (Python 56%)&quot;
+                    &quot;Consistent commits. Clean repos. Real impact.&quot;
                 </p>
             </div>
 
@@ -262,21 +270,120 @@ function GitHubStats() {
     )
 }
 
+// --- Sub-component: Custom Block (Admin-Configurable) ---
+function CustomBlock({ title, desc }: { title: string, desc: string }) {
+    const skills = [
+        { label: 'React & Next.js', color: '#00f5d4' },
+        { label: 'Node.js + Express', color: '#00f5d4' },
+        { label: 'TypeScript', color: '#00f5d4' },
+        { label: 'Java', color: '#f97316' },
+        { label: 'MongoDB', color: '#10b981' },
+        { label: 'PostgreSQL', color: '#10b981' },
+        { label: 'REST APIs', color: '#00f5d4' },
+        { label: 'JWT Auth', color: '#00f5d4' },
+        { label: 'TailwindCSS', color: '#00f5d4' },
+        { label: 'Framer Motion', color: '#a78bfa' },
+        { label: 'Docker', color: '#60a5fa' },
+        { label: 'Git & GitHub', color: '#f97316' },
+        { label: 'DSA (Java)', color: '#facc15' },
+        { label: 'Figma', color: '#f472b6' },
+        { label: 'Vercel', color: '#00f5d4' },
+    ]
+
+    const highlights = [
+        { icon: Zap, text: 'Ships fast. Writes clean.' },
+        { icon: Code, text: 'Full-Stack: Frontend to Database.' },
+        { icon: Layers, text: 'Scalable architecture, first time.' },
+    ]
+
+    return (
+        <div className="space-y-5 h-full flex flex-col justify-between" style={{ transform: 'translateZ(50px)' }}>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/5 rounded-lg border border-white/5">
+                        <Zap className="w-5 h-5 text-[#00f5d4]" />
+                    </div>
+                    <h3 className="text-xl font-black tracking-tighter text-white">
+                        {title || 'Skills Snapshot'}
+                    </h3>
+                </div>
+                <div className="text-[10px] font-mono text-[#00f5d4] uppercase tracking-widest bg-[#00f5d4]/10 px-3 py-1 rounded-full border border-[#00f5d4]/20 self-start sm:self-auto">
+                    Full Stack
+                </div>
+            </div>
+
+            {/* Description (admin-configurable) */}
+            <p className="text-[10px] text-white/40 font-bold italic tracking-wide border-l-2 border-[#00f5d4]/30 pl-3">
+                &quot;{desc || 'Building products that are fast, clean, and built to last.'}&quot;
+            </p>
+
+            {/* Skill Tags Grid */}
+            <div className="flex flex-wrap gap-2">
+                {skills.map((s) => (
+                    <motion.span
+                        key={s.label}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        className="text-[10px] font-black px-3 py-1.5 rounded-xl cursor-default transition-all"
+                        style={{
+                            background: `${s.color}14`,
+                            border: `1px solid ${s.color}33`,
+                            color: s.color,
+                        }}
+                    >
+                        {s.label}
+                    </motion.span>
+                ))}
+            </div>
+
+            {/* Highlights */}
+            <div className="space-y-2 pt-3 border-t border-white/5">
+                {highlights.map((h) => (
+                    <div key={h.text} className="flex items-center gap-3 group/h">
+                        <h.icon className="w-3.5 h-3.5 text-[#00f5d4] shrink-0 group-hover/h:scale-110 transition-transform" />
+                        <span className="text-[11px] font-bold text-white/60 group-hover/h:text-white/90 transition-colors tracking-tight">{h.text}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 export function About() {
     const [recruiterMode, setRecruiterMode] = useState(false)
+    const [aboutSettings, setAboutSettings] = useState<AboutSettings>({
+        showGithub: true,
+        showLeetcode: false,
+        showCustom: true,
+        customTitle: 'Currently Leveling Up',
+        customDesc: 'Building real-world projects, sharpening DSA skills, and working toward 200+ LeetCode problems.'
+    })
+
+    useEffect(() => {
+        fetch('/api/settings/about-sections')
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data) setAboutSettings(data) })
+            .catch(() => {})
+    }, [])
 
     return (
         <section id="about" className="container px-6 md:px-8 py-48 border-b border-white/5 relative overflow-hidden">
             {/* Background Texture/Accent */}
             <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent -z-10" />
             
-            <div className="text-center mb-24 relative z-10">
+            <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.8 }}
+                className="text-center mb-24 relative z-10"
+            >
                 <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">IDENTITY & STATS</h2>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
                     About <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-rose-500">Area</span>
                 </h1>
                 <p className="text-white/40 max-w-2xl mx-auto text-sm md:text-base leading-relaxed italic">The technical identity and professional metrics of Shubham Jadhav.</p>
-            </div>
+            </motion.div>
 
             <div className="flex flex-col md:flex-row items-center justify-center mb-16 gap-8">
                 
@@ -298,17 +405,23 @@ export function About() {
                     </span>
                 </button>
             </div>
-
             <AnimatePresence mode="wait">
                 {recruiterMode ? (
                     <motion.div
                         key="recruiter"
-                        initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: false }}
+                        exit={{ opacity: 0 }}
                         className="grid grid-cols-1 md:grid-cols-3 gap-8"
                     >
-                        <div className="glass p-10 rounded-[2.5rem] border border-[#00f5d4]/30 shadow-[0_0_50px_rgba(0,245,212,0.1)]">
+                        <motion.div 
+                            initial={{ opacity: 0, x: -50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: false }}
+                            transition={{ duration: 0.8 }}
+                            className="glass p-10 rounded-[2.5rem] border border-[#00f5d4]/30 shadow-[0_0_50px_rgba(0,245,212,0.1)]"
+                        >
                             <h4 className="text-xs font-black text-[#00f5d4] uppercase tracking-[0.3em] mb-6">Top Proficiency</h4>
                             <div className="space-y-4">
                                 {["Next.js & React", "TypeScript", "Node.js (Express)", "PostgreSQL/Supabase", "UI Architecture"].map(skill => (
@@ -318,9 +431,15 @@ export function About() {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                         
-                        <div className="md:col-span-2 glass p-10 rounded-[2.5rem] border border-white/10 flex flex-col justify-between">
+                        <motion.div 
+                            initial={{ opacity: 0, x: 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: false }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            className="md:col-span-2 glass p-10 rounded-[2.5rem] border border-white/10 flex flex-col justify-between"
+                        >
                             <div className="flex justify-between items-start mb-8">
                                 <div>
                                     <h4 className="text-xs font-black text-white/30 uppercase tracking-[0.3em] mb-4">Flagship Project</h4>
@@ -331,26 +450,32 @@ export function About() {
                                     <Globe className="w-8 h-8 text-[#00f5d4]" />
                                 </div>
                             </div>
-                            
-                            <div className="flex flex-wrap items-center gap-4">
-                                <Link href="#projects" className="px-8 py-4 bg-white text-black rounded-full font-black uppercase text-xs tracking-widest hover:scale-105 active:scale-95 transition-all">
-                                    View Project Case Study
-                                </Link>
-                                <button className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-black uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
-                                    Download Resume (PDF)
-                                </button>
-                            </div>
-                        </div>
+                                                        <div className="flex flex-wrap items-center gap-4">
+                                    <Link href="#projects" className="group relative px-8 py-4 bg-white text-black rounded-full font-black uppercase text-xs tracking-widest overflow-hidden transition-all duration-500 hover:bg-[#00f5d4] hover:shadow-[0_0_25px_rgba(0,245,212,0.4)] active:scale-95">
+                                        <span className="relative z-10">View Project Case Study</span>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                    </Link>
+                                    <button className="group relative px-8 py-4 bg-white/5 border border-[#00f5d4]/20 text-white rounded-full font-black uppercase text-xs tracking-widest overflow-hidden transition-all duration-500 hover:border-[#00f5d4]/50 hover:bg-[#00f5d4]/10 hover:shadow-[0_0_20px_rgba(0,245,212,0.2)] active:scale-95">
+                                        <span className="relative z-10">Download Resume (PDF)</span>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00f5d4]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                    </button>
+                                </div>
+                        </motion.div>
                     </motion.div>
                 ) : (
                     <motion.div 
                         key="standard"
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: false }}
                         exit={{ opacity: 0 }}
                         className="grid grid-cols-1 md:grid-cols-4 gap-8 h-full"
                     >
                         <motion.div 
+                            initial={{ opacity: 0, x: -100 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: false }}
+                            transition={{ duration: 1.2, ease: "easeOut" }}
                             whileHover={{ scale: 1.01 }}
                             className="md:col-span-2 glass p-6 lg:p-12 rounded-[2.5rem] flex flex-col justify-between group h-full border border-white/5 relative overflow-hidden"
                         >
@@ -392,28 +517,49 @@ export function About() {
                             </div>
                         </motion.div>
 
-                        {/* Developer Stats Section */}
-                        <div className="md:col-span-2 grid grid-cols-1 gap-8">
+                        {/* Developer Stats Section — Controlled by Admin Settings */}
+                        <motion.div 
+                            initial={{ opacity: 0, x: 100 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: false }}
+                            transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+                            className="md:col-span-2 grid grid-cols-1 gap-8"
+                        >
+                            {/* Block 1: LeetCode (shown if enabled) OR Custom Block */}
                             <TiltCard>
                                 <motion.div 
-                                    whileHover={{ borderColor: "rgba(0, 245, 212, 0.4)" }}
-                                    className="glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group transition-colors duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] hover:shadow-[0_0_30px_rgba(0,245,212,0.1)] h-full"
+                                    whileHover={{ borderColor: aboutSettings.showLeetcode ? "rgba(255, 161, 22, 0.4)" : "rgba(0, 245, 212, 0.4)" }}
+                                    className="glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group transition-colors duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] h-full"
                                 >
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00f5d4]/5 blur-[60px] rounded-full group-hover:bg-[#00f5d4]/10 transition-colors" />
-                                    <LeetCodeStats />
+                                    <div className="absolute top-0 right-0 w-32 h-32 blur-[60px] rounded-full transition-colors"
+                                        style={{ background: aboutSettings.showLeetcode ? 'rgba(255,161,22,0.05)' : 'rgba(0,245,212,0.05)' }} />
+                                    <AnimatePresence mode="wait">
+                                        {aboutSettings.showLeetcode ? (
+                                            <motion.div key="leet" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                                <LeetCodeStats />
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div key="custom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                                <CustomBlock title={aboutSettings.customTitle} desc={aboutSettings.customDesc} />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </motion.div>
                             </TiltCard>
 
-                            <TiltCard shineColor="#ff2d55">
-                                <motion.div 
-                                    whileHover={{ borderColor: "rgba(255, 45, 85, 0.4)" }}
-                                    className="glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group transition-colors duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] hover:shadow-[0_0_30px_rgba(255,45,85,0.1)] h-full"
-                                >
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff2d55]/5 blur-[60px] rounded-full group-hover:bg-[#ff2d55]/10 transition-colors" />
-                                    <GitHubStats />
-                                </motion.div>
-                            </TiltCard>
-                        </div>
+                            {/* Block 2: GitHub Stats (shown if enabled) */}
+                            {aboutSettings.showGithub && (
+                                <TiltCard shineColor="#ff2d55">
+                                    <motion.div 
+                                        whileHover={{ borderColor: "rgba(255, 45, 85, 0.4)" }}
+                                        className="glass p-6 md:p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden group transition-colors duration-500 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] hover:shadow-[0_0_30px_rgba(255,45,85,0.1)] h-full"
+                                    >
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff2d55]/5 blur-[60px] rounded-full group-hover:bg-[#ff2d55]/10 transition-colors" />
+                                        <GitHubStats />
+                                    </motion.div>
+                                </TiltCard>
+                            )}
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

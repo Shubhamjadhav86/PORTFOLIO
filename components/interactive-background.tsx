@@ -16,28 +16,40 @@ export function InteractiveBackground() {
         let animationFrameId: number
         let particles: Particle[] = []
         const particleCount = 100 
-        const connectionDistance = 150 
-        const mouseRadius = 250
+        const connectionDistance = 160
+        const mouseRadius = 250 
 
         class Particle {
             x: number
             y: number
+            baseX: number
+            baseY: number
             vx: number
             vy: number
             size: number
+            opacity: number
             color: string
+            // Spring properties
+            springFactor: number
+            friction: number
 
             constructor() {
                 this.x = Math.random() * canvas!.width
                 this.y = Math.random() * canvas!.height
+                this.baseX = this.x
+                this.baseY = this.y
+                // Ultra-slow initial velocity
                 this.vx = (Math.random() - 0.5) * 0.15
                 this.vy = (Math.random() - 0.5) * 0.15
                 this.size = Math.random() * 1.5 + 0.5
-                this.color = "rgba(0, 245, 212, 0.4)" // Restored subtlety
+                this.opacity = 0.12 
+                this.color = "0, 245, 212"
+                this.springFactor = 0.05
+                this.friction = 0.95
             }
 
             draw() {
-                ctx!.fillStyle = this.color
+                ctx!.fillStyle = `rgba(${this.color}, ${this.opacity})`
                 ctx!.beginPath()
                 ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2)
                 ctx!.closePath()
@@ -45,22 +57,40 @@ export function InteractiveBackground() {
             }
 
             update() {
+                // Determine direction to mouse
+                let dx = mouse.current.x - this.x
+                let dy = mouse.current.y - this.y
+                let distance = Math.sqrt(dx * dx + dy * dy)
+                
+                // Determine direction to home (base position)
+                let homeDx = this.baseX - this.x
+                let homeDy = this.baseY - this.y
+                
+                if (distance < mouseRadius) {
+                    // Pull towards mouse
+                    this.vx += dx * 0.001
+                    this.vy += dy * 0.001
+                }
+
+                // Always pull slightly towards home (Spring Force)
+                this.vx += homeDx * this.springFactor
+                this.vy += homeDy * this.springFactor
+
+                // Apply friction to dampen the movement
+                this.vx *= this.friction
+                this.vy *= this.friction
+
                 this.x += this.vx
                 this.y += this.vy
 
-                if (this.x < 0 || this.x > canvas!.width) this.vx *= -1
-                if (this.y < 0 || this.y > canvas!.height) this.vy *= -1
-
-                if (mouse.current.active) {
-                    let dx = mouse.current.x - this.x
-                    let dy = mouse.current.y - this.y
-                    let distance = Math.sqrt(dx * dx + dy * dy)
-                    
-                    if (distance < mouseRadius) {
-                        this.x += dx * 0.008
-                        this.y += dy * 0.008
-                    }
-                }
+                // Boundary Logic for Base Position (Slow drift of the anchor itself)
+                this.baseX += (Math.random() - 0.5) * 0.1
+                this.baseY += (Math.random() - 0.5) * 0.1
+                
+                if (this.baseX < 0) this.baseX = canvas!.width
+                if (this.baseX > canvas!.width) this.baseX = 0
+                if (this.baseY < 0) this.baseY = canvas!.height
+                if (this.baseY > canvas!.height) this.baseY = 0
             }
         }
 
@@ -72,7 +102,7 @@ export function InteractiveBackground() {
                     const distance = Math.sqrt(dx * dx + dy * dy)
 
                     if (distance < connectionDistance) {
-                        const opacity = (1 - (distance / connectionDistance)) * 0.15 // Restored subtlety
+                        const opacity = (1 - (distance / connectionDistance)) * 0.08
                         ctx.strokeStyle = `rgba(0, 245, 212, ${opacity})`
                         ctx.lineWidth = 0.5
                         ctx.beginPath()
@@ -140,7 +170,7 @@ export function InteractiveBackground() {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 z-0 pointer-events-none opacity-30"
+            className="absolute inset-0 z-0 pointer-events-none opacity-100 bg-transparent"
         />
     )
 }

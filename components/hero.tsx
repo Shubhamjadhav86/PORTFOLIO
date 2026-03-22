@@ -53,7 +53,7 @@ export function Hero() {
     }, [text, isDeleting, loopNum, typingSpeed, phrases])
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-20 pb-12">
+        <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black pt-32 lg:pt-20 pb-12">
             <InteractiveBackground />
             
             <div className="container relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center px-6 lg:px-20">
@@ -68,15 +68,16 @@ export function Hero() {
                         <h3 className="text-lg md:text-2xl font-bold font-mono tracking-tight text-white flex items-center gap-2 h-8 mt-12 lg:mt-0">
                             {text}<span className="w-1.5 h-6 lg:h-8 bg-[#00f5d4] animate-pulse" />
                         </h3>
-                        <h2 className="text-3xl md:text-6xl font-bold text-[#00f5d4] tracking-tight mb-2">
+                        <h2 className="text-3xl md:text-6xl font-bold text-[#00f5d4] tracking-tight -mb-1 md:mb-2">
                             Hello, I&apos;m
                         </h2>
-                        <h1 className="text-4xl sm:text-5xl lg:text-[7.5rem] font-bold text-white tracking-tighter leading-[0.9] lg:leading-[0.85] font-[family-name:var(--font-plus-jakarta)]">
-                            Shubham <br /> Jadhav
+                        <h1 className="flex flex-col gap-1 text-[3.8rem] sm:text-6xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.8] font-[family-name:var(--font-plus-jakarta)] text-transparent bg-clip-text bg-gradient-to-r from-white via-[#00f5d4] to-white drop-shadow-[0_0_35px_rgba(0,245,212,0.4)]">
+                            <span>Shubham</span>
+                            <span className="pb-[4px]">Jadhav</span>
                         </h1>
                     </div>
                     
-                    <p className="text-base md:text-2xl text-white/50 max-w-xl leading-relaxed font-normal font-[family-name:var(--font-inter)] italic">
+                    <p className="text-sm md:text-2xl text-white/60 max-w-xl leading-relaxed font-medium font-[family-name:var(--font-inter)] italic drop-shadow-sm">
                         &quot;I build products, not just projects — designed to solve, scale, and stand out.&quot;
                     </p>
                     
@@ -89,22 +90,28 @@ export function Hero() {
                         </Link>
                         
                         <Link href="#contact" onClick={(e) => scrollToSection(e, "#contact")}>
-                            <button className="px-6 lg:px-10 h-10 lg:h-14 bg-white text-black rounded-full text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95">
-                                Contact Me
+                            <button className="group relative px-6 lg:px-10 h-10 lg:h-14 bg-white text-black rounded-full text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] overflow-hidden transition-all duration-500 hover:shadow-[0_0_30px_rgba(0,245,212,0.35)] hover:bg-[#00f5d4] active:scale-95">
+                                <span className="relative z-10">Contact Me</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                             </button>
                         </Link>
                     </div>
 
                     <div className="flex items-center gap-6 lg:gap-8 pt-4 lg:pt-6">
-                        {[Linkedin, Github, Mail].map((Icon, i) => (
+                        {[
+                            { Icon: Linkedin, href: "https://www.linkedin.com/in/shubham-jadhav-b209a6307/" },
+                            { Icon: Github, href: "https://github.com/Shubhamjadhav86" },
+                            { Icon: Mail, href: "mailto:shubhamja9863@gmail.com" }
+                        ].map((social, i) => (
                             <motion.a
                                 key={i}
-                                href={i === 2 ? "mailto:your@email.com" : "#"}
-                                target={i === 2 ? undefined : "_blank"}
+                                href={social.href}
+                                target={social.href.startsWith("mailto") ? undefined : "_blank"}
+                                rel={social.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
                                 whileHover={{ scale: 1.3, color: "#00f5d4" }}
                                 className="text-white/80 transition-colors"
                             >
-                                <Icon className="w-5 h-5 lg:w-8 lg:h-8" />
+                                <social.Icon className="w-5 h-5 lg:w-8 lg:h-8" />
                             </motion.a>
                         ))}
                     </div>
@@ -120,7 +127,7 @@ export function Hero() {
                     {/* Multi-layered Radial Glow */}
                     <div className="absolute w-full h-full lg:w-[130%] lg:h-[130%] bg-[#00f5d4]/5 blur-[80px] lg:blur-[120px] rounded-full pointer-events-none animate-pulse" />
                     
-                    <div className="relative w-full max-w-[450px] lg:max-w-[650px] aspect-square flex items-center justify-center opacity-20 lg:opacity-100">
+                    <div className="relative w-full max-w-[500px] lg:max-w-[650px] aspect-square flex items-center justify-center opacity-40 lg:opacity-100 transition-all duration-1000">
                         <Image 
                             src="/Avator.png" 
                             alt="Avatar" 

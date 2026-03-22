@@ -42,7 +42,7 @@ export function TiltCard({ children, shineColor = "#00f5d4" }: { children: React
             {children}
             <motion.div 
                 style={{
-                    background: `radial-gradient(circle at center, ${shineColor}20 0%, transparent 70%)`,
+                    background: `radial-gradient(circle at center, ${shineColor}15 0%, transparent 80%)`,
                     opacity: shineOpacity,
                 }}
                 className="absolute inset-0 pointer-events-none z-30"

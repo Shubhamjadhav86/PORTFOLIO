@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ExternalLink, Award, FileText, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const BASE_URL = 'http://localhost:5000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 interface Certificate {
     _id: string;
@@ -23,7 +23,7 @@ export function Certificates() {
   useEffect(() => {
     const loadCerts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/certificates')
+        const response = await fetch(`${BASE_URL}/api/certificates`)
         if (!response.ok) throw new Error("Failed to fetch")
         const data = await response.json()
         setCerts(data)
@@ -69,9 +69,10 @@ export function Certificates() {
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-rose-500/5 blur-[120px] rounded-full pointer-events-none" />
 
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false, amount: 0.3 }}
+        transition={{ duration: 0.8 }}
         className="text-center mb-24 md:mb-40 px-4 relative z-10"
       >
         <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">Credentials & Achievements</h2>
@@ -94,7 +95,13 @@ export function Certificates() {
         </p>
       </motion.div>
 
-      <div className="relative max-w-7xl mx-auto px-4 z-10">
+      <motion.div 
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ duration: 1, delay: 0.2 }}
+        className="relative max-w-7xl mx-auto px-4 z-10"
+      >
         <div className="relative overflow-hidden px-4">
           <motion.div 
             animate={{ x: `calc(-${currentIndex * 100}% - ${currentIndex * 24}px)` }}
@@ -114,15 +121,15 @@ export function Certificates() {
 
         <div className="flex flex-col items-center mt-12 gap-8">
           <div className="flex items-center gap-8">
-            <button onClick={prev} disabled={currentIndex === 0} className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-cyan-500/20 text-white/50 hover:text-white disabled:opacity-20">
+            <button onClick={prev} disabled={currentIndex === 0} className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-cyan-500/20 hover:border-cyan-500/40 hover:shadow-[0_0_15px_rgba(0,245,212,0.3)] text-white/50 hover:text-white disabled:opacity-20 transition-all duration-300">
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <button onClick={next} disabled={currentIndex >= certs.length - (typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4)} className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-rose-500/20 text-white/50 hover:text-white disabled:opacity-20">
+            <button onClick={next} disabled={currentIndex >= certs.length - (typeof window !== 'undefined' && window.innerWidth < 1024 ? 1 : 4)} className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-rose-500/20 hover:border-rose-500/40 hover:shadow-[0_0_15px_rgba(255,45,85,0.3)] text-white/50 hover:text-white disabled:opacity-20 transition-all duration-300">
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }
@@ -136,11 +143,18 @@ function CertificateCard({ cert, index }: { cert: Certificate, index: number }) 
   ]
   const theme = themes[index % themes.length]
   return (
-    <motion.div 
-      className="relative group w-full h-[450px] flex flex-col items-center justify-end mt-16"
-      whileHover="hover"
-      initial="initial"
+    <motion.div
+      initial={{ opacity: 0, y: 100 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false }}
+      transition={{ duration: 1.2, delay: index * 0.2, ease: [0.16, 1, 0.3, 1] }}
+      className="h-full w-full"
     >
+        <motion.div 
+          className="relative group w-full h-[450px] flex flex-col items-center justify-end mt-16"
+          whileHover="hover"
+          initial="initial"
+        >
       <motion.div 
         variants={{
           hover: { y: -85, scale: 1.05, opacity: 1, rotate: 5 },
@@ -196,6 +210,7 @@ function CertificateCard({ cert, index }: { cert: Certificate, index: number }) 
           </div>
         </div>
       </div>
+        </motion.div>
     </motion.div>
   )
 }

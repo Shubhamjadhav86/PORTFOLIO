@@ -31,21 +31,9 @@ export function SkillsPlayground() {
   const engineRef = useRef<Matter.Engine | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   
-  // Wall Flash State
-  const [activeWalls, setActiveWalls] = useState({ 
-    top: false, 
-    bottom: false, 
-    left: false, 
-    right: false 
-  })
-
-  // Trigger Flash Logic
-  const triggerFlash = (side: keyof typeof activeWalls) => {
-    setActiveWalls(prev => ({ ...prev, [side]: true }))
-    setTimeout(() => {
-      setActiveWalls(prev => ({ ...prev, [side]: false }))
-    }, 200)
-  }
+  // Localized Impact Tracking (Sync with Physics)
+  const impactsRef = useRef<{ x: number, y: number, side: 'top' | 'bottom' | 'left' | 'right', alpha: number, id: number }[]>([])
+  const prevPositionsRef = useRef<Map<number, number>>(new Map()) // Track Y-coordinates for entry/exit flashes
 
   useEffect(() => {
     if (!containerRef.current || !canvasRef.current) return
@@ -95,20 +83,34 @@ export function SkillsPlayground() {
       isStatic: true, 
       render: { visible: false },
       friction: 0.1,
-      restitution: 0.6
+      restitution: 0.4 // Smoother bounce
     }
     const floor = Bodies.rectangle(width / 2, height + 25, width, 50, wallOptions)
     const leftWall = Bodies.rectangle(-25, height / 2, 50, height, wallOptions)
     const rightWall = Bodies.rectangle(width + 25, height / 2, 50, height, wallOptions)
-    const ceiling = Bodies.rectangle(width / 2, -25, width, 50, wallOptions) // Adjusted for containment
+    const ceiling = Bodies.rectangle(width / 2, -2000, width, 2000, wallOptions)
 
-    // Collision Detection for Flashes
+    // Localized Collision Detection (Walls/Floor)
     Events.on(engine, 'collisionStart', (event) => {
       event.pairs.forEach((pair) => {
-        if (pair.bodyA === floor || pair.bodyB === floor) triggerFlash('bottom')
-        if (pair.bodyA === leftWall || pair.bodyB === leftWall) triggerFlash('left')
-        if (pair.bodyA === rightWall || pair.bodyB === rightWall) triggerFlash('right')
-        if (pair.bodyA === ceiling || pair.bodyB === ceiling) triggerFlash('top')
+        const wall = [floor, leftWall, rightWall].find(w => w === pair.bodyA || w === pair.bodyB)
+        if (wall) {
+          const contact = pair.collision.supports[0] || (pair.collision as any).activeContacts?.[0]
+          if (contact) {
+            let side: 'top' | 'bottom' | 'left' | 'right' = 'bottom'
+            if (wall === leftWall) side = 'left'
+            if (wall === rightWall) side = 'right'
+            if (wall === floor) side = 'bottom'
+
+            impactsRef.current.push({
+              x: contact.x,
+              y: contact.y,
+              side,
+              alpha: 1.0,
+              id: Date.now() + Math.random()
+            })
+          }
+        }
       })
     })
 
@@ -143,13 +145,13 @@ export function SkillsPlayground() {
         for (let j = 0; j < 3 && i < fullSkills.length; j++) {
           const skill = fullSkills[i]
           const x = Math.random() * (width - blockSize * 2) + blockSize
-          const y = -120 - (Math.random() * 200)
+          const y = 50 + (Math.random() * 100)
           
           const body = Bodies.rectangle(x, y, blockSize, blockSize, {
             chamfer: { radius: blockSize * 0.13 },
-            restitution: 0.6,
+            restitution: 0.4,
             friction: 0.1,
-            frictionAir: 0.02,
+            frictionAir: 0.04,
           })
           
           ;(body as any).skill = skill
@@ -211,6 +213,74 @@ export function SkillsPlayground() {
       const currentLayout = getLayout()
       const bodies = Composite.allBodies(engine.world)
       
+      // 0. Detect Entry/Exit from Top edge (y=0)
+      bodies.forEach(body => {
+        if (!(body as any).skill) return
+        const currentY = body.position.y
+        const prevY = prevPositionsRef.current.get(body.id) ?? currentY
+        
+        const crossedUp = prevY >= 0 && currentY < 0
+        const crossedDown = prevY < 0 && currentY >= 0
+        
+        if (crossedUp || crossedDown) {
+          impactsRef.current.push({
+            x: body.position.x,
+            y: 0,
+            side: 'top',
+            alpha: 1.0,
+            id: Date.now() + Math.random()
+          })
+        }
+        prevPositionsRef.current.set(body.id, currentY)
+      })
+
+      // 1. Draw Localized Edge Glows
+      context.save()
+      impactsRef.current.forEach((impact) => {
+        const length = 140 // Slightly longer for "spread" feel
+        const thickness = 3
+        
+        context.shadowBlur = 25
+        context.shadowColor = '#00f5d4'
+        context.lineWidth = thickness
+        context.lineCap = 'round'
+
+        // Create gradient line for soft tips
+        let grad: CanvasGradient
+        if (impact.side === 'bottom' || impact.side === 'top') {
+          grad = context.createLinearGradient(impact.x - length/2, 0, impact.x + length/2, 0)
+        } else {
+          grad = context.createLinearGradient(0, impact.y - length/2, 0, impact.y + length/2)
+        }
+        
+        grad.addColorStop(0, 'rgba(0, 245, 212, 0)')
+        grad.addColorStop(0.5, `rgba(0, 245, 212, ${impact.alpha * 0.8})`)
+        grad.addColorStop(1, 'rgba(0, 245, 212, 0)')
+        
+        context.strokeStyle = grad
+        context.beginPath()
+        
+        if (impact.side === 'bottom') {
+          context.moveTo(impact.x - length/2, height - 1)
+          context.lineTo(impact.x + length/2, height - 1)
+        } else if (impact.side === 'top') {
+          context.moveTo(impact.x - length/2, 1)
+          context.lineTo(impact.x + length/2, 1)
+        } else if (impact.side === 'left') {
+          context.moveTo(1, impact.y - length/2)
+          context.lineTo(1, impact.y + length/2)
+        } else if (impact.side === 'right') {
+          context.moveTo(width - 1, impact.y - length/2)
+          context.lineTo(width - 1, impact.y + length/2)
+        }
+        context.stroke()
+
+        impact.alpha -= 0.025
+      })
+      impactsRef.current = impactsRef.current.filter(i => i.alpha > 0)
+      context.restore()
+
+      // 2. Draw Skills
       bodies.forEach(body => {
         const skill = (body as any).skill
         if (!skill) return
@@ -293,7 +363,7 @@ export function SkillsPlayground() {
       Matter.Body.setPosition(floor, { x: newWidth / 2, y: newHeight + 25 })
       Matter.Body.setPosition(rightWall, { x: newWidth + 25, y: newHeight / 2 })
       Matter.Body.setPosition(leftWall, { x: -25, y: newHeight / 2 })
-      Matter.Body.setPosition(ceiling, { x: newWidth / 2, y: -25 })
+      Matter.Body.setPosition(ceiling, { x: newWidth / 2, y: -2000 })
     }
 
     window.addEventListener('resize', handleResize)
@@ -330,12 +400,6 @@ export function SkillsPlayground() {
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
         
-        {/* Wall Fashes */}
-        <div className={cn("absolute inset-x-0 top-0 h-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.top ? "opacity-100" : "opacity-0")} />
-        <div className={cn("absolute inset-x-0 bottom-0 h-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.bottom ? "opacity-100" : "opacity-0")} />
-        <div className={cn("absolute inset-y-0 left-0 w-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.left ? "opacity-100" : "opacity-0")} />
-        <div className={cn("absolute inset-y-0 right-0 w-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.right ? "opacity-100" : "opacity-0")} />
-
         {/* Subtle Background Glow */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#00f5d4]/5 blur-[120px] rounded-full" />

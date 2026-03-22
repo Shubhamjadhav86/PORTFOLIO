@@ -5,10 +5,10 @@ import { fetchCertificates, deleteProject, uploadImage } from '@/lib/admin-api';
 import { safeStorage } from '@/lib/safe-storage';
 import { Plus, Trash2, Edit2, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
+import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 
-// Specific API call for certificates if needed, or just use the same pattern
-const API_URL = 'http://localhost:5000/api';
-const BASE_URL = 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/api` : '';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || '';
 
 interface Certificate {
     _id?: string;
@@ -29,6 +29,11 @@ export default function CertificatesPage() {
         date: '',
         image: ''
     });
+
+    // Delete Modal State
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [certToDelete, setCertToDelete] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         loadCertificates();
@@ -53,28 +58,49 @@ export default function CertificatesPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure?')) return;
-        const token = safeStorage.getItem('adminToken');
-        const { deleteCertificate } = await import('@/lib/admin-api');
-        await deleteCertificate(id, token);
-        loadCertificates();
+    const handleDeleteClick = (id: string) => {
+        setCertToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!certToDelete) return;
+        
+        setIsDeleting(true);
+        try {
+            const token = safeStorage.getItem('adminToken');
+            const { deleteCertificate } = await import('@/lib/admin-api');
+            await deleteCertificate(certToDelete, token);
+            setIsDeleteModalOpen(false);
+            setCertToDelete(null);
+            loadCertificates();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to delete certificate. Check connection or token.');
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const token = safeStorage.getItem('adminToken');
-        const { createCertificate, updateCertificate } = await import('@/lib/admin-api');
-        
-        if (editingId) {
-            await updateCertificate(editingId, newCert, token);
-        } else {
-            await createCertificate(newCert, token);
+        try {
+            const token = safeStorage.getItem('adminToken');
+            const { createCertificate, updateCertificate } = await import('@/lib/admin-api');
+            
+            if (editingId) {
+                await updateCertificate(editingId, newCert, token);
+            } else {
+                await createCertificate(newCert, token);
+            }
+            setShowForm(false);
+            setEditingId(null);
+            setNewCert({ title: '', issuer: '', date: '', image: '' });
+            loadCertificates();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save certificate.');
         }
-        setShowForm(false);
-        setEditingId(null);
-        setNewCert({ title: '', issuer: '', date: '', image: '' });
-        loadCertificates();
     };
 
 
@@ -191,11 +217,20 @@ export default function CertificatesPage() {
                         <p className="text-gray-400 text-sm mb-4">{cert.issuer} • {cert.date}</p>
                          <div className="flex items-center gap-3">
                             <button onClick={() => handleEdit(cert)} className="flex-1 py-2 rounded-lg bg-white/5 hover:bg-white/10 flex justify-center items-center gap-2 transition-all"><Edit2 size={16} /> Edit</button>
-                            <button onClick={() => cert._id && handleDelete(cert._id)} className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"><Trash2 size={18} /></button>
+                            <button onClick={() => cert._id && handleDeleteClick(cert._id)} className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"><Trash2 size={18} /></button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            <DeleteConfirmModal 
+                isOpen={isDeleteModalOpen}
+                loading={isDeleting}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete Certificate"
+                message={`Are you sure you want to delete this certificate? This action cannot be undone.`}
+            />
         </div>
     );
 }

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, FolderKanban, Award, LogOut, MessageSquare } from 'lucide-react';
-import { safeStorage } from '@/lib/safe-storage';
+import { logout } from '@/lib/admin-api';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -22,8 +22,8 @@ export default function Navbar() {
     const pathname = usePathname();
     const router = useRouter();
 
-    const handleLogout = () => {
-        safeStorage.removeItem('adminToken');
+    const handleLogout = async () => {
+        await logout();
         router.push('/admin/login');
     };
 

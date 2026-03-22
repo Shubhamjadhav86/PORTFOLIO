@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/lib/admin-api';
-import { safeStorage } from '@/lib/safe-storage';
-import { setCookie } from '@/lib/cookies';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 
@@ -20,9 +18,8 @@ export default function LoginPage() {
         setError('');
         setIsSubmitting(true);
         try {
-            const { token } = await login('admin', password);
-            safeStorage.setItem('adminToken', token);
-            setCookie('adminToken', token);
+            await login('admin', password);
+            // Session is now managed securely via backend HTTP-Only cookies
             window.location.href = '/admin/dashboard';
         } catch (err: any) {
 

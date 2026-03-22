@@ -9,9 +9,9 @@ import { createPortal } from "react-dom"
 const contactMethods = [
     {
         name: "Email",
-        value: "shubhamja9863@gmail.com",
+        value: "shubhamjadhav86@gmail.com",
         icon: Mail,
-        href: "mailto:shubhamja9863@gmail.com",
+        href: "mailto:shubhamjadhav86@gmail.com",
         color: "#00ffff"
     },
     {
@@ -25,14 +25,14 @@ const contactMethods = [
         name: "Linkedin",
         value: "Connect with me",
         icon: Linkedin,
-        href: "https://www.linkedin.com/in/shubham-jadhav-b209a6307/",
+        href: "#",
         color: "#0077B5"
     },
     {
         name: "WhatsApp",
-        value: "+91 9834717038",
+        value: "Direct Chat",
         icon: MessageCircle,
-        href: "https://wa.me/919834717038",
+        href: "https://wa.me/910000000000",
         color: "#25D366"
     }
 ]
@@ -72,7 +72,7 @@ export function Contact() {
 
     useEffect(() => {
         if (showSuccess) {
-            const timer = setTimeout(() => setShowSuccess(false), 2000);
+            const timer = setTimeout(() => setShowSuccess(false), 8000);
             return () => clearTimeout(timer);
         }
     }, [showSuccess]);
@@ -134,20 +134,30 @@ export function Contact() {
                             className="space-y-4"
                         >
                             <div>
-                                <h4 className="text-xl font-black text-white tracking-widest uppercase italic mb-1">Transmission</h4>
-                                <h4 className="text-xs font-mono text-primary font-bold tracking-[0.4em] uppercase">Successful</h4>
+                                <h4 className="text-2xl font-black text-white tracking-widest uppercase italic mb-1">Transmission</h4>
+                                <h4 className="text-sm font-mono text-primary font-bold tracking-[0.4em] uppercase">Successful</h4>
                             </div>
                             
-                            <p className="text-gray-400 text-xs leading-relaxed font-medium px-4">
+                            <p className="text-gray-400 text-sm leading-relaxed font-medium">
                                 Your message has been encrypted and delivered. I will respond to your inquiry shortly.
                             </p>
                         </motion.div>
+
+                        <motion.button
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.8 }}
+                            onClick={() => setShowSuccess(false)}
+                            className="mt-10 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-[0.3em] transition-all hover:border-primary/40 active:scale-95"
+                        >
+                            Return to Interface
+                        </motion.button>
 
                         {/* Scan Line */}
                         <motion.div 
                             animate={{ y: [0, 400] }}
                             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                            className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none"
+                            className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent pointer-events-none"
                         />
                     </motion.div>
                 </div>
@@ -156,7 +166,7 @@ export function Contact() {
     );
 
     return (
-        <section id="contact" className="container py-24 border-b border-white/5 relative overflow-hidden">
+        <section id="contact" className="container py-40 border-b border-white/5 relative overflow-hidden">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -167,7 +177,7 @@ export function Contact() {
                 {/* Header Section */}
                 <motion.div 
                     variants={itemVariants}
-                    className="text-center mb-20 relative z-10"
+                    className="text-center mb-24 relative z-10"
                 >
                     <h2 className="text-xs md:text-sm font-mono uppercase tracking-[0.5em] text-[#00f5d4] mb-4">GET IN TOUCH</h2>
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
@@ -176,21 +186,21 @@ export function Contact() {
                     <p className="text-white/40 max-w-2xl mx-auto text-sm md:text-base leading-relaxed italic">Let&apos;s build the future together. Reach out for collaborations or opportunities.</p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     {/* Main Contact Card Area */}
                     <motion.div 
                         variants={itemVariants}
-                        whileHover={{ scale: 1.002 }}
-                        className="lg:col-span-7 glass p-6 md:p-10 rounded-[2rem] flex flex-col justify-between group relative overflow-hidden h-full"
+                        whileHover={{ scale: 1.005 }}
+                        className="lg:col-span-7 glass p-8 md:p-12 rounded-[2.5rem] flex flex-col justify-between group relative overflow-hidden h-full"
                     >
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] -z-10 group-hover:bg-primary/10 transition-all" />
                         
                         <div className="relative z-10">
-                            <h3 className="text-2xl font-bold mb-3 tracking-tight leading-tight">
+                            <h3 className="text-4xl font-bold mb-6 tracking-tight leading-tight">
                                 Got a project in mind? <br /> 
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Let&apos;s Build it Together!</span>
                             </h3>
-                            <p className="text-muted-foreground text-xs leading-relaxed max-w-sm italic mb-6">
+                            <p className="text-muted-foreground text-lg leading-relaxed max-w-md italic mb-8">
                                 I&apos;m currently open to new opportunities and freelance collaborations. 
                                 Turn your ideas into digital reality.
                             </p>
@@ -218,29 +228,29 @@ export function Contact() {
                                     setIsSubmitting(false);
                                 }
                             }} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] uppercase tracking-widest text-primary font-bold ml-2">Name</label>
-                                        <input name="name" placeholder="Shubham Jadhav" required className="bg-white/5 border border-white/10 p-3.5 rounded-xl w-full focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-xs" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] uppercase tracking-widest text-primary font-bold ml-2">Name</label>
+                                        <input name="name" placeholder="Shubham Jadhav" required className="bg-white/5 border border-white/10 p-5 rounded-2xl w-full focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-sm" />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] uppercase tracking-widest text-primary font-bold ml-2">Email</label>
-                                        <input name="email" type="email" placeholder="hello@example.com" required className="bg-white/5 border border-white/10 p-3.5 rounded-xl w-full focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-xs" />
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] uppercase tracking-widest text-primary font-bold ml-2">Email</label>
+                                        <input name="email" type="email" placeholder="hello@example.com" required className="bg-white/5 border border-white/10 p-5 rounded-2xl w-full focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-sm" />
                                     </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[9px] uppercase tracking-widest text-primary font-bold ml-2">Subject</label>
-                                    <input name="subject" placeholder="Project Inquiry" required className="bg-white/5 border border-white/10 p-3.5 rounded-xl w-full focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-xs" />
+                                <div className="space-y-2">
+                                    <label className="text-[10px] uppercase tracking-widest text-primary font-bold ml-2">Subject</label>
+                                    <input name="subject" placeholder="Project Inquiry" required className="bg-white/5 border border-white/10 p-5 rounded-2xl w-full focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-sm" />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[9px] uppercase tracking-widest text-primary font-bold ml-2">Message</label>
-                                    <textarea name="message" placeholder="Tell me about your vision..." required className="bg-white/5 border border-white/10 p-3.5 rounded-xl w-full h-32 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-xs resize-none" />
+                                <div className="space-y-2">
+                                    <label className="text-[10px] uppercase tracking-widest text-primary font-bold ml-2">Message</label>
+                                    <textarea name="message" placeholder="Tell me about your vision..." required className="bg-white/5 border border-white/10 p-5 rounded-2xl w-full h-40 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-mono text-sm resize-none" />
                                 </div>
                                 <Button 
                                     type="submit" 
-                                    size="sm" 
+                                    size="lg" 
                                     disabled={isSubmitting}
-                                    className="group relative rounded-xl h-12 px-8 text-xs font-bold shadow-[0_10px_30px_rgba(0,255,255,0.2)] hover:shadow-[0_0_40px_rgba(0,245,212,0.5)] hover:-translate-y-1 active:scale-95 transition-all duration-300 w-full md:w-auto disabled:opacity-50 overflow-hidden"
+                                    className="group relative rounded-2xl h-16 px-10 text-base font-bold shadow-[0_10px_30px_rgba(0,255,255,0.2)] hover:shadow-[0_0_40px_rgba(0,245,212,0.5)] hover:-translate-y-1 active:scale-95 transition-all duration-300 w-full md:w-auto disabled:opacity-50 overflow-hidden"
                                 >
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                                 {isSubmitting ? (
@@ -264,29 +274,29 @@ export function Contact() {
                         {/* Current Status Card */}
                         <motion.div 
                             variants={itemVariants}
-                            className="glass p-6 rounded-[2rem] flex-1 flex flex-col justify-center relative overflow-hidden group"
+                            className="glass p-8 rounded-[2.5rem] flex-1 flex flex-col justify-center relative overflow-hidden group"
                         >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 blur-[60px] -z-10 group-hover:bg-green-500/20 transition-all" />
-                            <div className="flex items-center gap-3 mb-4">
+                            <div className="flex items-center gap-4 mb-6">
                                 <div className="relative">
-                                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
-                                    <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping" />
+                                    <div className="w-3 h-3 bg-green-500 rounded-full" />
+                                    <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping" />
                                 </div>
-                                <span className="text-[10px] font-mono uppercase tracking-widest text-green-500 font-bold">Current Status: Available</span>
+                                <span className="text-sm font-mono uppercase tracking-widest text-green-500 font-bold">Current Status: Available</span>
                             </div>
-                            <h4 className="text-xl font-bold mb-3 tracking-tight">Based in Nashik, <br /> Maharashtra, India</h4>
-                            <div className="space-y-3 text-muted-foreground">
+                            <h4 className="text-2xl font-bold mb-4 tracking-tight">Based in India, <br /> Working Worldwide.</h4>
+                            <div className="space-y-4 text-muted-foreground">
                                 <div className="flex items-center gap-3">
-                                    <Globe className="w-4 h-4 text-primary" />
-                                    <p className="text-xs font-mono">Asia/Kolkata (GMT+5:30)</p>
+                                    <Globe className="w-5 h-5 text-primary" />
+                                    <p className="text-sm font-mono">Asia/Kolkata (GMT+5:30)</p>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <Zap className="w-4 h-4 text-amber-400" />
-                                    <p className="text-xs font-mono">Avg. Response Time: &lt; 24h</p>
+                                    <Clock className="w-5 h-5 text-primary" />
+                                    <p className="text-sm font-mono">Mon - Sat: 9AM - 8PM</p>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <MapPin className="w-4 h-4 text-primary" />
-                                    <p className="text-xs font-mono">Remote Friendly / Hybrid</p>
+                                    <MapPin className="w-5 h-5 text-primary" />
+                                    <p className="text-sm font-mono">Remote Friendly / Hybrid</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -321,7 +331,7 @@ export function Contact() {
 
             {/* Footer */}
             <div className="mt-32 text-center text-muted-foreground font-mono text-sm opacity-50 uppercase tracking-[0.3em]">
-                Designed & Built by Shubham Jadhav (c) 2026
+                Designed & Built by Shubham Jadhav © 2026
             </div>
         </section>
     )

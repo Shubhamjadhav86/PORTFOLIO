@@ -3,13 +3,24 @@ const router = express.Router();
 const Message = require('../models/Message');
 const { protect } = require('../middleware/authMiddleware');
 const { sendContactEmails } = require('../utils/emailService');
+const rateLimit = require('express-rate-limit');
+
+const contactLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 min
+    max: 10, // 1 IP → max 10 submissions
+    message: { success: false, message: "Too many messages, please try later" }
+});
 
 // @route   POST /api/messages
 // @desc    Send a message
 // @access  Public
-router.post('/messages', async (req, res) => {
+router.post('/messages', contactLimiter, async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
+        
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: "All fields required" });
+        }
         
         // Save to database
         const newMessage = new Message({ name, email, subject, message });
@@ -32,9 +43,14 @@ router.post('/messages', async (req, res) => {
 // @route   POST /api/contact
 // @desc    Alias for Send a message
 // @access  Public
-router.post('/contact', async (req, res) => {
+router.post('/contact', contactLimiter, async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
+
+        if (!name || !email || !message) {
+            return res.status(400).json({ success: false, message: "All fields required" });
+        }
+
         const newMessage = new Message({ name, email, subject, message });
         await newMessage.save();
 

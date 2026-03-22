@@ -13,9 +13,10 @@ const navItems = [
     { name: "About", href: "#about" },
     { name: "Skills", href: "#skills" },
     { name: "Projects", href: "#projects" },
-    { name: "Experience", href: "#experience" },
+    { name: "Education", href: "#experience" },
     { name: "Contact", href: "#contact" },
 ]
+
 
 export function Header() {
     const [isScrolled, setIsScrolled] = useState(false)
@@ -49,7 +50,11 @@ export function Header() {
             )}
         >
             <nav className="container flex items-center justify-between px-6 lg:px-20">
-                <Link href="/" className="group flex items-center gap-2">
+                <Link 
+                    href="#home" 
+                    onClick={(e) => scrollToSection(e, "#home")}
+                    className="group flex items-center gap-2"
+                >
                     <div className="relative w-12 h-12 lg:w-16 lg:h-16">
                         <Image 
                             src="/logo.png" 
