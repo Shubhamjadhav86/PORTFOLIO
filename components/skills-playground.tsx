@@ -30,6 +30,22 @@ export function SkillsPlayground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<Matter.Engine | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  
+  // Wall Flash State
+  const [activeWalls, setActiveWalls] = useState({ 
+    top: false, 
+    bottom: false, 
+    left: false, 
+    right: false 
+  })
+
+  // Trigger Flash Logic
+  const triggerFlash = (side: keyof typeof activeWalls) => {
+    setActiveWalls(prev => ({ ...prev, [side]: true }))
+    setTimeout(() => {
+      setActiveWalls(prev => ({ ...prev, [side]: false }))
+    }, 200)
+  }
 
   useEffect(() => {
     if (!containerRef.current || !canvasRef.current) return
@@ -57,7 +73,7 @@ export function SkillsPlayground() {
 
     // Create engine & renderer once
     const engine = Engine.create()
-    engine.gravity.y = 0.8 // Restored closer to original speed
+    engine.gravity.y = 0.8
     engineRef.current = engine
 
     const render = Render.create({
@@ -84,7 +100,17 @@ export function SkillsPlayground() {
     const floor = Bodies.rectangle(width / 2, height + 25, width, 50, wallOptions)
     const leftWall = Bodies.rectangle(-25, height / 2, 50, height, wallOptions)
     const rightWall = Bodies.rectangle(width + 25, height / 2, 50, height, wallOptions)
-    const ceiling = Bodies.rectangle(width / 2, -2000, width, 50, wallOptions)
+    const ceiling = Bodies.rectangle(width / 2, -25, width, 50, wallOptions) // Adjusted for containment
+
+    // Collision Detection for Flashes
+    Events.on(engine, 'collisionStart', (event) => {
+      event.pairs.forEach((pair) => {
+        if (pair.bodyA === floor || pair.bodyB === floor) triggerFlash('bottom')
+        if (pair.bodyA === leftWall || pair.bodyB === leftWall) triggerFlash('left')
+        if (pair.bodyA === rightWall || pair.bodyB === rightWall) triggerFlash('right')
+        if (pair.bodyA === ceiling || pair.bodyB === ceiling) triggerFlash('top')
+      })
+    })
 
     // Preload images
     const imageCache: Record<string, HTMLImageElement> = {}
@@ -114,24 +140,23 @@ export function SkillsPlayground() {
           return
         }
 
-        // Spawn 3 at a time for more dynamic look
         for (let j = 0; j < 3 && i < fullSkills.length; j++) {
           const skill = fullSkills[i]
           const x = Math.random() * (width - blockSize * 2) + blockSize
-          const y = -120 - (Math.random() * 200) // Varied start heights
+          const y = -120 - (Math.random() * 200)
           
           const body = Bodies.rectangle(x, y, blockSize, blockSize, {
             chamfer: { radius: blockSize * 0.13 },
             restitution: 0.6,
             friction: 0.1,
-            frictionAir: 0.02, // Smoother than default but faster than before
+            frictionAir: 0.02,
           })
           
           ;(body as any).skill = skill
           Composite.add(engine.world, body)
           i++
         }
-      }, 100) // Faster interval
+      }, 100)
     }
 
     Composite.add(engine.world, [floor, leftWall, rightWall, ceiling])
@@ -268,6 +293,7 @@ export function SkillsPlayground() {
       Matter.Body.setPosition(floor, { x: newWidth / 2, y: newHeight + 25 })
       Matter.Body.setPosition(rightWall, { x: newWidth + 25, y: newHeight / 2 })
       Matter.Body.setPosition(leftWall, { x: -25, y: newHeight / 2 })
+      Matter.Body.setPosition(ceiling, { x: newWidth / 2, y: -25 })
     }
 
     window.addEventListener('resize', handleResize)
@@ -297,13 +323,19 @@ export function SkillsPlayground() {
       <div 
         ref={containerRef}
         className={cn(
-          "relative w-full h-[90dvh] md:h-[600px] border border-[#00f5d4]/20 rounded-2xl bg-[#050505] cursor-grab active:cursor-grabbing overflow-hidden transition-all duration-1000",
-          "shadow-[0_0_20px_rgba(0,245,212,0.05),inset_0_0_15px_rgba(0,245,212,0.02)]",
+          "relative w-full h-[90dvh] md:h-[600px] border border-transparent rounded-2xl bg-[#050505] cursor-grab active:cursor-grabbing overflow-hidden transition-all duration-1000",
+          "shadow-[0_0_20px_rgba(0,245,212,0.02)]",
           isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         )}
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
         
+        {/* Wall Fashes */}
+        <div className={cn("absolute inset-x-0 top-0 h-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.top ? "opacity-100" : "opacity-0")} />
+        <div className={cn("absolute inset-x-0 bottom-0 h-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.bottom ? "opacity-100" : "opacity-0")} />
+        <div className={cn("absolute inset-y-0 left-0 w-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.left ? "opacity-100" : "opacity-0")} />
+        <div className={cn("absolute inset-y-0 right-0 w-1 bg-[#00f5d4] shadow-[0_0_15px_#00f5d4] transition-opacity duration-300 pointer-events-none z-30", activeWalls.right ? "opacity-100" : "opacity-0")} />
+
         {/* Subtle Background Glow */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#00f5d4]/5 blur-[120px] rounded-full" />
